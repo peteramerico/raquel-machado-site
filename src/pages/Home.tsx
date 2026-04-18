@@ -99,7 +99,7 @@ export default function Home() {
                 onClick={() => setDropdownOpen(false)}
               >
                 <span className={styles.navDropdownName}>Fábrica do Amanhã</span>
-                <span className={styles.navDropdownSub}>Natal/RN</span>
+                <span className={styles.navDropdownSub}>Rua Dr. Horácio, 595 · Lagoa Nova</span>
               </a>
             </div>
           )}
@@ -323,13 +323,14 @@ export default function Home() {
               </div>
               <h3 className={styles.clinicaName}>Fábrica do Amanhã</h3>
               <p className={styles.clinicaAddress}>
+                Rua Dr. Horácio, 595 · Lagoa Nova<br />
                 Natal/RN
               </p>
               <a href={WHATSAPP_FABRICA} className={styles.btnPrimary} target="_blank" rel="noopener noreferrer">
                 Agendar pelo WhatsApp
               </a>
               <a
-                href="https://www.google.com/maps/search/Fábrica+do+Amanhã+Natal+RN"
+                href="https://www.google.com/maps/search/Rua+Dr.+Horácio+595+Lagoa+Nova+Natal+RN"
                 className={styles.clinicaMaps}
                 target="_blank"
                 rel="noopener noreferrer"
