@@ -1,3 +1,8 @@
+.page,
+.page * {
+  box-sizing: border-box;
+}
+
 .page {
   --rose-50: #fff5f8;
   --rose-100: #fde7ef;
@@ -24,8 +29,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 32px 18px 48px;
-  padding-top: max(32px, env(safe-area-inset-top, 32px));
+  padding: 20px 20px 40px;
+  padding-top: max(20px, env(safe-area-inset-top, 20px));
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
   color: var(--ink);
   overflow: hidden;
@@ -56,7 +61,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 420px;
+  max-width: 380px;
   animation: riseIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -69,16 +74,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   text-align: center;
 }
 
 .avatarRing {
   position: relative;
-  width: 92px;
-  height: 92px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  padding: 3px;
+  padding: 2.5px;
   background: conic-gradient(
     from 140deg,
     var(--rose-500),
@@ -86,18 +91,18 @@
     var(--rose-300),
     var(--rose-500)
   );
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   box-shadow:
-    0 16px 40px -14px rgba(214, 51, 132, 0.45),
-    0 4px 12px rgba(42, 20, 36, 0.08);
+    0 12px 28px -12px rgba(214, 51, 132, 0.45),
+    0 2px 8px rgba(42, 20, 36, 0.08);
 }
 
 .avatarRing::after {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: -6px;
   border-radius: 50%;
-  border: 1px dashed rgba(214, 51, 132, 0.28);
+  border: 1px dashed rgba(214, 51, 132, 0.25);
   pointer-events: none;
   animation: rotate 60s linear infinite;
 }
@@ -132,21 +137,21 @@
 .eyebrow {
   font-family: 'Fraunces', serif;
   font-style: italic;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--rose-600);
-  margin-bottom: 1px;
+  margin-bottom: 0;
   letter-spacing: 0.02em;
 }
 
 .name {
   font-family: 'Fraunces', serif;
-  font-size: clamp(26px, 7.2vw, 34px);
+  font-size: clamp(22px, 6.2vw, 28px);
   font-weight: 500;
   line-height: 1.05;
   color: var(--plum-900);
   letter-spacing: -0.02em;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   font-variation-settings: 'opsz' 96;
 }
 
@@ -157,25 +162,25 @@
 }
 
 .credentials {
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .places {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-soft);
   font-weight: 500;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .divider {
   display: flex;
   justify-content: center;
-  margin: 0 0 14px;
+  margin: 0 0 10px;
 }
 
 .divider span {
@@ -188,8 +193,8 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
+  gap: 7px;
+  margin-bottom: 10px;
 }
 
 .sectionLabel {
@@ -213,9 +218,9 @@
 }
 
 .footer {
-  margin-top: 20px;
+  margin-top: 14px;
   text-align: center;
-  font-size: 10px;
+  font-size: 9.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-mute);
@@ -223,16 +228,16 @@
 
 @media (min-width: 720px) {
   .page {
-    padding: 64px 32px 80px;
+    padding: 48px 32px 64px;
   }
   .card {
-    max-width: 440px;
+    max-width: 420px;
   }
   .avatarRing {
-    width: 112px;
-    height: 112px;
+    width: 96px;
+    height: 96px;
   }
   .name {
-    font-size: 40px;
+    font-size: 34px;
   }
 }
