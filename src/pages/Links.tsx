@@ -4,10 +4,10 @@ import styles from '../styles/Links.module.css'
 
 const LINKS = {
   instagram: 'https://instagram.com/raquelmachado_ped',
-  whatsappCativa: 'https://wa.me/5584XXXXXXXXX',      // substituir pelo número real
-  whatsappFabrica: 'https://wa.me/5584XXXXXXXXX',     // substituir pelo número real
-  mapsCativa: 'https://maps.google.com/?q=Tyrol+Business+Center+Natal+RN+Sala+514', // ajustar
-  mapsFabrica: 'https://maps.google.com/?q=Fabrica+do+Amanha+Natal+RN',             // ajustar
+  whatsappCativa: 'https://wa.me/5584996770404',
+  whatsappFabrica: 'https://wa.me/5584992215656',
+  mapsCativa: 'https://maps.app.goo.gl/xjfA9Au2hrnofZue6',
+  mapsFabrica: 'https://maps.app.goo.gl/cyWUyaNC4ybWVxnJ7',
 }
 
 export default function Links() {
