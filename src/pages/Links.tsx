@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import LinkButton from '../components/LinkButton'
 import styles from '../styles/Links.module.css'
 
@@ -10,20 +11,24 @@ const LINKS = {
 }
 
 export default function Links() {
+  const [imgError, setImgError] = useState(false)
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <div className={styles.profile}>
-          <img
-            src="/raquel-avatar.jpg"
-            alt="Dra. Raquel Machado"
-            className={styles.avatar}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none'
-              e.currentTarget.nextElementSibling?.removeAttribute('style')
-            }}
-          />
-          <div className={styles.avatarFallback} style={{ display: 'none' }}>👩‍⚕️</div>
+          {imgError ? (
+            <div className={styles.avatarFallback} role="img" aria-label="Dra. Raquel Machado">
+              👩‍⚕️
+            </div>
+          ) : (
+            <img
+              src="/raquel-avatar.jpg"
+              alt="Dra. Raquel Machado"
+              className={styles.avatar}
+              onError={() => setImgError(true)}
+            />
+          )}
           <h1 className={styles.name}>Raquel Machado</h1>
           <p className={styles.subtitle}>Pediatra &amp; Neonatologista<br />Sala de parto · Consultório</p>
         </div>
