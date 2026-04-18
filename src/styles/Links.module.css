@@ -1,0 +1,76 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #fce4ec 0%, #fdf6f0 60%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 16px 60px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 400px;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 4px 16px rgba(214, 51, 132, 0.25);
+  margin-bottom: 14px;
+}
+
+.avatarFallback {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f48fb1, #d63384);
+  border: 3px solid #fff;
+  box-shadow: 0 4px 16px rgba(214, 51, 132, 0.25);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: #d63384;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #c06080;
+  margin: 8px 4px 2px;
+}
