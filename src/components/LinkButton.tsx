@@ -17,7 +17,7 @@ export default function LinkButton({ href, label, icon, variant = 'secondary' }:
       rel="noopener noreferrer"
       className={`${styles.btn} ${styles[variant]}`}
     >
-      <span className={styles.icon}>{icon}</span>
+      <span className={styles.icon} aria-hidden="true">{icon}</span>
       <span className={styles.text}>{label}</span>
     </a>
   )
