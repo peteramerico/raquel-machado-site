@@ -1,0 +1,74 @@
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 50px;
+  text-decoration: none;
+  cursor: pointer;
+  width: 100%;
+  border: none;
+  font-family: inherit;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.primary {
+  background: #d63384;
+  box-shadow: 0 4px 14px rgba(214, 51, 132, 0.35);
+}
+
+.primary .text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.secondary {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(214, 51, 132, 0.15) !important;
+}
+
+.secondary .text {
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.address {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(214, 51, 132, 0.2) !important;
+}
+
+.address .text {
+  color: #555;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: rgba(214, 51, 132, 0.12);
+}
+
+.primary .icon {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.text {
+  flex: 1;
+  text-align: left;
+}
