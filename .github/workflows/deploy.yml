@@ -1,0 +1,72 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Configure Nginx on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            mkdir -p /var/www/raquelmachadoped
+            cat > /etc/nginx/sites-available/raquelmachadoped << 'EOF'
+            server {
+                listen 80;
+                server_name raquelmachadoped.com.br www.raquelmachadoped.com.br;
+                return 301 https://$host$request_uri;
+            }
+
+            server {
+                listen 443 ssl;
+                server_name raquelmachadoped.com.br www.raquelmachadoped.com.br;
+
+                ssl_certificate /etc/letsencrypt/live/raquelmachadoped.com.br/fullchain.pem;
+                ssl_certificate_key /etc/letsencrypt/live/raquelmachadoped.com.br/privkey.pem;
+
+                root /var/www/raquelmachadoped;
+                index index.html;
+
+                location / {
+                    try_files $uri $uri/ /index.html;
+                }
+            }
+            EOF
+            ln -sf /etc/nginx/sites-available/raquelmachadoped /etc/nginx/sites-enabled/raquelmachadoped
+            rm -f /etc/nginx/sites-enabled/default
+            nginx -t && systemctl reload nginx
+
+      - name: Copy build to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "dist/*"
+          target: "/var/www/raquelmachadoped"
+          strip_components: 1
