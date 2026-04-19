@@ -355,7 +355,10 @@ export default function Home() {
             <a href={WHATSAPP_FABRICA} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>WhatsApp Fábrica</a>
             <a href="/links" className={styles.footerLink}>Links</a>
           </div>
-          <p className={styles.footerCopy}>© 2026 Dra. Raquel Machado · Todos os direitos reservados</p>
+          <p className={styles.footerCopy}>
+            © 2026 Dra. Raquel Machado · Todos os direitos reservados ·{' '}
+            <a href="/privacidade" className={styles.footerLink}>Política de Privacidade</a>
+          </p>
         </div>
       </footer>
 
