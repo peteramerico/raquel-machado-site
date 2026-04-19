@@ -145,7 +145,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd /opt/raquel-backend
-            npm ci --omit=dev
+            npm install --omit=dev
 
             # Garante que o .env existe
             if [ ! -f .env ]; then
