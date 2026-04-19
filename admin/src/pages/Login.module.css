@@ -1,0 +1,41 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 0%, rgba(214,51,132,.15) 0%, #0f0a0d 70%);
+  padding: 20px;
+}
+
+.card {
+  background: #1a0f16;
+  border: 1px solid rgba(214,51,132,.2);
+  border-radius: 20px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo { text-align: center; margin-bottom: 40px; }
+.logoName { display: block; font-size: 1.1rem; font-weight: 600; color: #f0e8ec; letter-spacing: .02em; }
+.logoSub { display: block; font-size: .75rem; color: rgba(214,51,132,.8); margin-top: 4px; letter-spacing: .1em; text-transform: uppercase; }
+
+.form { display: flex; flex-direction: column; gap: 20px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: .8rem; color: #9080a0; font-weight: 500; }
+
+.error { color: #ff6b6b; font-size: .85rem; margin: 0; text-align: center; }
+
+.btn {
+  background: #d63384;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-size: .95rem;
+  font-weight: 600;
+  transition: background .2s;
+  margin-top: 4px;
+}
+.btn:hover:not(:disabled) { background: #b8296f; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }

@@ -1,0 +1,31 @@
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: #0f0a0d; color: #f0e8ec; -webkit-font-smoothing: antialiased; }
+
+:root {
+  --rose: #d63384;
+  --rose-dark: #b8296f;
+  --plum: #2b1424;
+  --plum-light: #3d1e33;
+  --cream: #fff8f3;
+  --bg: #0f0a0d;
+  --surface: #1a0f16;
+  --border: rgba(214, 51, 132, 0.15);
+  --text: #f0e8ec;
+  --text-muted: #9080888;
+}
+
+a { color: var(--rose); }
+button { cursor: pointer; }
+input, textarea, select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .9rem;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--rose); }

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= post.title %> — Dra. Raquel Machado</title>
+  <meta name="description" content="<%= post.excerpt || post.title %>" />
+  <% if (post.cover_image) { %>
+  <meta property="og:image" content="<%= process.env.SITE_URL %><%= post.cover_image %>" />
+  <% } %>
+  <meta property="og:title" content="<%= post.title %>" />
+  <meta property="og:type" content="article" />
+  <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; background: #fff8f3; color: #1a1a2e; -webkit-font-smoothing: antialiased; }
+
+    :root { --rose: #d63384; --plum: #2b1424; --cream: #fff8f3; }
+
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(255,248,243,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(214,51,132,.12);
+      padding: 16px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { text-decoration: none; }
+    .nav-logo-name { display: block; font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--plum); }
+    .nav-logo-sub { display: block; font-size: .7rem; color: #6b6b7b; letter-spacing: .06em; }
+    .nav-back { font-size: .85rem; color: var(--rose); text-decoration: none; }
+    .nav-back:hover { text-decoration: underline; }
+
+    .cover {
+      width: 100%; max-height: 480px; object-fit: cover;
+      display: block;
+    }
+
+    .article-wrap { max-width: 760px; margin: 0 auto; padding: 56px 48px 80px; }
+
+    .article-meta { margin-bottom: 32px; }
+    .article-date { font-size: .8rem; color: #9090a0; margin: 0 0 12px; }
+    h1 { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 600; color: var(--plum); margin: 0 0 20px; line-height: 1.2; }
+    .article-excerpt { font-size: 1.1rem; color: #4a4a5a; line-height: 1.7; border-left: 3px solid var(--rose); padding-left: 20px; margin: 0; }
+
+    .article-author {
+      display: flex; align-items: center; gap: 14px;
+      padding: 24px 0; border-top: 1px solid rgba(214,51,132,.12); border-bottom: 1px solid rgba(214,51,132,.12);
+      margin-bottom: 48px;
+    }
+    .author-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, #fde7ef, #d63384);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fraunces', serif; font-weight: 600; color: #fff; font-size: .95rem;
+      flex-shrink: 0;
+    }
+    .author-name { font-weight: 600; font-size: .9rem; color: var(--plum); }
+    .author-title { font-size: .8rem; color: #9090a0; }
+
+    .article-content { font-size: 1.05rem; line-height: 1.85; color: #2a2a3a; }
+    .article-content h2 { font-family: 'Fraunces', serif; font-size: 1.5rem; color: var(--plum); margin: 2em 0 .75em; }
+    .article-content h3 { font-family: 'Fraunces', serif; font-size: 1.2rem; color: var(--plum); margin: 1.5em 0 .5em; }
+    .article-content p { margin: 0 0 1.4em; }
+    .article-content ul, .article-content ol { padding-left: 1.5em; margin: 0 0 1.4em; }
+    .article-content li { margin-bottom: .5em; }
+    .article-content blockquote { border-left: 3px solid var(--rose); margin: 1.5em 0; padding: .5em 1.2em; color: #4a4a5a; font-style: italic; }
+    .article-content img { max-width: 100%; border-radius: 12px; margin: 1.5em 0; }
+    .article-content a { color: var(--rose); }
+    .article-content strong { color: var(--plum); }
+    .article-content iframe { width: 100%; border-radius: 12px; border: none; }
+
+    .cta-box {
+      background: linear-gradient(135deg, #fde7ef, #fff8f3);
+      border: 1px solid rgba(214,51,132,.2);
+      border-radius: 16px; padding: 32px; margin-top: 56px; text-align: center;
+    }
+    .cta-box p { margin: 0 0 20px; font-size: .95rem; color: #4a4a5a; }
+    .cta-btn {
+      display: inline-block; background: var(--rose); color: #fff;
+      padding: 12px 28px; border-radius: 50px; text-decoration: none;
+      font-weight: 600; font-size: .9rem; transition: background .2s;
+    }
+    .cta-btn:hover { background: #b8296f; }
+
+    .back-link { display: inline-block; margin-top: 48px; font-size: .85rem; color: var(--rose); text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
+
+    footer {
+      background: var(--plum); color: rgba(255,255,255,.6);
+      padding: 24px 48px; text-align: center; font-size: .85rem;
+    }
+    footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .article-wrap { padding: 32px 20px 56px; }
+      footer { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <span class="nav-logo-name">Dra. Raquel Machado</span>
+    <span class="nav-logo-sub">Pediatra · Neonatologista</span>
+  </a>
+  <a href="/blog" class="nav-back">← Blog</a>
+</nav>
+
+<% if (post.cover_image) { %>
+  <img class="cover" src="<%= post.cover_image %>" alt="<%= post.title %>" />
+<% } %>
+
+<div class="article-wrap">
+  <div class="article-meta">
+    <p class="article-date"><%= new Date(post.published_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) %></p>
+    <h1><%= post.title %></h1>
+    <% if (post.excerpt) { %>
+      <p class="article-excerpt"><%= post.excerpt %></p>
+    <% } %>
+  </div>
+
+  <div class="article-author">
+    <div class="author-avatar">RM</div>
+    <div>
+      <div class="author-name">Dra. Raquel Machado</div>
+      <div class="author-title">Pediatra & Neonatologista · CRM-RN 9383</div>
+    </div>
+  </div>
+
+  <div class="article-content">
+    <%- post.content_html %>
+  </div>
+
+  <div class="cta-box">
+    <p>Gostou do conteúdo? Agende uma consulta e cuide da saúde do seu bebê com quem entende.</p>
+    <a href="https://wa.me/5584996770404" class="cta-btn" target="_blank" rel="noopener noreferrer">Agendar consulta pelo WhatsApp</a>
+  </div>
+
+  <a href="/blog" class="back-link">← Ver todos os posts</a>
+</div>
+
+<footer>
+  <a href="/">Dra. Raquel Machado · Pediatra & Neonatologista</a> &nbsp;·&nbsp;
+  <a href="/privacidade">Política de Privacidade</a>
+</footer>
+
+</body>
+</html>

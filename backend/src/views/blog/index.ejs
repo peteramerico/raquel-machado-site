@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — Dra. Raquel Machado · Pediatra & Neonatologista</title>
+  <meta name="description" content="Conteúdo sobre pediatria, neonatologia e saúde infantil por Dra. Raquel Machado." />
+  <link rel="preload" href="/fonts/fraunces-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; padding: 0; font-family: 'Manrope', sans-serif; background: #fff8f3; color: #1a1a2e; -webkit-font-smoothing: antialiased; }
+
+    :root {
+      --rose: #d63384;
+      --plum: #2b1424;
+      --cream: #fff8f3;
+      --gold: #c9a77b;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(255,248,243,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(214,51,132,.12);
+      padding: 16px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { text-decoration: none; }
+    .nav-logo-name { display: block; font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--plum); }
+    .nav-logo-sub { display: block; font-size: .7rem; color: #6b6b7b; letter-spacing: .06em; }
+    .nav-back { font-size: .85rem; color: var(--rose); text-decoration: none; }
+    .nav-back:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #fde7ef 0%, var(--cream) 60%);
+      padding: 64px 48px 48px;
+      text-align: center;
+    }
+    .eyebrow { font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--rose); margin: 0 0 12px; }
+    h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3rem); font-weight: 600; color: var(--plum); margin: 0 0 16px; }
+    .hero-sub { font-size: 1rem; color: #4a4a5a; max-width: 520px; margin: 0 auto; line-height: 1.7; }
+
+    .grid {
+      max-width: 1100px; margin: 0 auto;
+      padding: 56px 48px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 32px;
+    }
+
+    .card {
+      background: #fff; border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(43,20,36,.06);
+      transition: transform .2s, box-shadow .2s;
+      text-decoration: none; color: inherit; display: flex; flex-direction: column;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(43,20,36,.12); }
+
+    .card-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; background: #f0e0ea; }
+    .card-img-placeholder { width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #fde7ef, #f8d0e3); display: flex; align-items: center; justify-content: center; }
+    .card-img-placeholder svg { opacity: .3; }
+
+    .card-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .card-date { font-size: .75rem; color: #9090a0; }
+    .card-title { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: var(--plum); line-height: 1.35; margin: 0; }
+    .card-excerpt { font-size: .9rem; color: #4a4a5a; line-height: 1.65; margin: 0; flex: 1; }
+    .card-cta { margin-top: auto; font-size: .85rem; font-weight: 600; color: var(--rose); }
+
+    .empty { text-align: center; padding: 80px 48px; color: #9090a0; }
+
+    footer {
+      background: var(--plum); color: rgba(255,255,255,.6);
+      padding: 24px 48px; text-align: center; font-size: .85rem;
+    }
+    footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .hero { padding: 40px 20px 32px; }
+      .grid { padding: 32px 20px; grid-template-columns: 1fr; }
+      footer { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <span class="nav-logo-name">Dra. Raquel Machado</span>
+    <span class="nav-logo-sub">Pediatra · Neonatologista</span>
+  </a>
+  <a href="/" class="nav-back">← Voltar ao site</a>
+</nav>
+
+<div class="hero">
+  <p class="eyebrow">Conteúdo</p>
+  <h1>Blog</h1>
+  <p class="hero-sub">Pediatria, neonatologia e saúde infantil — conteúdo baseado em evidências para famílias.</p>
+</div>
+
+<% if (posts.length === 0) { %>
+  <div class="empty">
+    <p>Nenhum post publicado ainda.</p>
+  </div>
+<% } else { %>
+  <div class="grid">
+    <% posts.forEach(post => { %>
+      <a href="/blog/<%= post.slug %>" class="card">
+        <% if (post.cover_image) { %>
+          <img class="card-img" src="<%= post.cover_image %>" alt="<%= post.title %>" loading="lazy" />
+        <% } else { %>
+          <div class="card-img-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d63384" stroke-width="1.5">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+          </div>
+        <% } %>
+        <div class="card-body">
+          <span class="card-date"><%= new Date(post.published_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) %></span>
+          <h2 class="card-title"><%= post.title %></h2>
+          <% if (post.excerpt) { %>
+            <p class="card-excerpt"><%= post.excerpt %></p>
+          <% } %>
+          <span class="card-cta">Ler artigo →</span>
+        </div>
+      </a>
+    <% }) %>
+  </div>
+<% } %>
+
+<footer>
+  <a href="/">Dra. Raquel Machado · Pediatra & Neonatologista</a> &nbsp;·&nbsp;
+  <a href="/privacidade">Política de Privacidade</a>
+</footer>
+
+</body>
+</html>
