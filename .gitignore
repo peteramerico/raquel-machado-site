@@ -15,6 +15,10 @@ admin/dist/
 # Uploads (conteúdo gerado na VPS)
 backend/uploads/
 
+# Duplicatas de migração (remover se aparecerem)
+frontend/public/public/
+frontend/src/src/
+
 # Env
 .env
 backend/.env
