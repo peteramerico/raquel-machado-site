@@ -66,7 +66,7 @@ jobs:
                 add_header X-Content-Type-Options "nosniff" always;
                 add_header Referrer-Policy "strict-origin-when-cross-origin" always;
                 add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-                add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; frame-src https://www.youtube.com https://www.instagram.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';" always;
+                add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://analytics.raquelmachadoped.com.br; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://analytics.raquelmachadoped.com.br; frame-src https://www.youtube.com https://www.instagram.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';" always;
 
                 location /blog {
                     proxy_pass http://127.0.0.1:3001;
