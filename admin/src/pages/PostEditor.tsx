@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
-import Link as TiptapLink from '@tiptap/extension-link'
+import TiptapLink from '@tiptap/extension-link'
 import Youtube from '@tiptap/extension-youtube'
 import Placeholder from '@tiptap/extension-placeholder'
 import { api } from '../api'
@@ -17,7 +17,7 @@ export default function PostEditor({ user, onLogout }: { user: { name: string };
   const [title, setTitle] = useState('')
   const [excerpt, setExcerpt] = useState('')
   const [coverImage, setCoverImage] = useState('')
-  const [status, setStatus] = useState('rascunho')
+  const [, setStatus] = useState('rascunho')
   const [scheduledAt, setScheduledAt] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState('')
