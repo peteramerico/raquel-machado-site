@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import LinkButton from '../components/LinkButton'
-import { InstagramIcon, WhatsAppIcon, MapPinIcon } from '../components/icons'
+import { InstagramIcon, WhatsAppIcon, MapPinIcon, GlobeIcon, ArrowLeftIcon } from '../components/icons'
 import styles from '../styles/Links.module.css'
 
 const LINKS = {
@@ -18,6 +18,11 @@ export default function Links() {
     <div className={styles.page}>
       <div className={styles.grain} aria-hidden="true" />
       <div className={styles.glow} aria-hidden="true" />
+
+      <a href="/" className={styles.backHome} aria-label="Voltar para o site da Dra. Raquel Machado">
+        <ArrowLeftIcon />
+        <span>Site</span>
+      </a>
 
       <main className={styles.card}>
         <header className={styles.profile}>
@@ -53,6 +58,14 @@ export default function Links() {
         </div>
 
         <section className={styles.section}>
+          <LinkButton
+            href="/"
+            label="Site Oficial"
+            sublabel="Conheça a Dra. Raquel Machado"
+            icon={<GlobeIcon />}
+            variant="secondary"
+            external={false}
+          />
           <LinkButton
             href={LINKS.instagram}
             label="@raquelmachado_ped"
