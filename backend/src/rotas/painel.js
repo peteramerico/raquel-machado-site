@@ -101,8 +101,8 @@ function rotasPainel({ repo, config, sessao, senhas, limites }) {
       const ativo = req.body?.ativo;
       if (typeof ativo !== 'boolean') return res.status(400).json({ erro: 'Informe "ativo" como verdadeiro ou falso.' });
 
-      const versao = await repo.definirAtivo(id, ativo, { papel: 'familia' });
-      if (versao === null) return res.status(404).json(MSG_NAO_ENCONTRADA);
+      const r = await repo.definirAtivo(id, ativo, { papel: 'familia' });
+      if (r === null) return res.status(404).json(MSG_NAO_ENCONTRADA);
       res.json({ id, ativo });
     } catch (err) {
       next(err);

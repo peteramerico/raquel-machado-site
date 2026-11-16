@@ -5,14 +5,24 @@ import styles from './Painel.module.css'
 
 // Cartão que mostra o acesso gerado UMA vez (a senha temporária não é guardada em lugar nenhum).
 // Fechar sem ter copiado/enviado pede confirmação — a senha se perde ao fechar.
-export default function CartaoCredenciais({ credenciais, onFechar }: { credenciais: Credenciais; onFechar: () => void }) {
+interface Props {
+  credenciais: Credenciais
+  onFechar: () => void
+  // Padrões = família. Equipe (médica/admin) passa o login da própria área, um aviso sem "família" e semWhatsApp.
+  urlEntrada?: string
+  aviso?: string
+  mensagem?: string
+  semWhatsApp?: boolean
+}
+
+export default function CartaoCredenciais({ credenciais, onFechar, urlEntrada, aviso, mensagem, semWhatsApp = false }: Props) {
   const [usado, setUsado] = useState(false) // copiou a mensagem ou abriu o WhatsApp
   const [copiado, setCopiado] = useState(false)
   const [confirmando, setConfirmando] = useState(false)
 
-  const url = `${window.location.origin}/familia/entrar`
-  const texto = mensagemAcesso({ nome: credenciais.nome, login: credenciais.login, senha: credenciais.senhaTemporaria, url })
-  const link = linkWhatsApp(credenciais.contato, texto)
+  const url = urlEntrada ?? `${window.location.origin}/familia/entrar`
+  const texto = mensagem ?? mensagemAcesso({ nome: credenciais.nome, login: credenciais.login, senha: credenciais.senhaTemporaria, url })
+  const link = semWhatsApp ? null : linkWhatsApp(credenciais.contato, texto)
 
   async function copiar() {
     try {
@@ -33,8 +43,8 @@ export default function CartaoCredenciais({ credenciais, onFechar }: { credencia
     <section className={styles.credenciais} aria-labelledby="titulo-credenciais" role="region">
       <h2 id="titulo-credenciais" className={styles.credTitulo}>Acesso de {credenciais.nome}</h2>
       <p className={styles.credAviso}>
-        <strong>Esta senha só aparece agora.</strong> Copie a mensagem ou envie pelo WhatsApp antes de fechar. Peça para a família
-        entrar logo: a senha é temporária e deve ser trocada no primeiro acesso.
+        <strong>Esta senha só aparece agora.</strong>{' '}
+        {aviso ?? 'Copie a mensagem ou envie pelo WhatsApp antes de fechar. Peça para a família entrar logo: a senha é temporária e deve ser trocada no primeiro acesso.'}
       </p>
 
       <dl className={styles.credDados}>
@@ -59,7 +69,7 @@ export default function CartaoCredenciais({ credenciais, onFechar }: { credencia
             Enviar pelo WhatsApp
           </a>
         ) : (
-          <span className={styles.credSemContato}>Sem WhatsApp cadastrado: use “Copiar mensagem”.</span>
+          !semWhatsApp && <span className={styles.credSemContato}>Sem WhatsApp cadastrado: use “Copiar mensagem”.</span>
         )}
         <button type="button" className={styles.botaoTexto} onClick={fechar}>Fechar</button>
       </div>

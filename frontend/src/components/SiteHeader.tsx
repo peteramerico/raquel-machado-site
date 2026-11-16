@@ -93,6 +93,15 @@ export default function SiteHeader() {
               Área médica
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/admin"
+              className={({ isActive }) => `${styles.link} ${isActive ? styles.linkAtivo : ''}`}
+              onClick={fechar}
+            >
+              Administrador
+            </NavLink>
+          </li>
         </ul>
 
         <div className={styles.agendar} ref={agendarRef}>

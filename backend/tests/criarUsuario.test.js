@@ -71,6 +71,27 @@ describe('CLI criar-usuario', () => {
     expect(await senhas.conferir(u.senha, depois.senhaHash)).toBe(false);
   });
 
+  it('--reativar destrava conta desativada (runbook de recuperação) e derruba sessões antigas', async () => {
+    const repo = criarRepoFalso();
+    const u = await semear(repo, senhas, { login: 'raquel', papel: 'medica', ativo: false });
+    const r = await rodar(['--reativar', '--login', 'raquel'], repo);
+    expect(r.codigo).toBe(0);
+    expect(r.saida).toMatch(/reativada/i);
+    const depois = repo._usuarios.find((x) => x.id === u.id);
+    expect(depois.ativo).toBe(true);
+    expect(depois.sessaoVersao).toBe(2);
+  });
+
+  it('--reativar de conta já ativa não mexe na sessão; de inexistente → código 1', async () => {
+    const repo = criarRepoFalso();
+    await semear(repo, senhas, { login: 'raquel', papel: 'medica' });
+    const r = await rodar(['--reativar', '--login', 'raquel'], repo);
+    expect(r.codigo).toBe(0);
+    expect(r.saida).toMatch(/já estava ativa/i);
+    expect(repo._usuarios[0].sessaoVersao).toBe(1);
+    expect((await rodar(['--reativar', '--login', 'fantasma'], repo)).codigo).toBe(1);
+  });
+
   it('--redefinir de login inexistente → código 1', async () => {
     const r = await rodar(['--redefinir', '--login', 'fantasma'], criarRepoFalso());
     expect(r.codigo).toBe(1);

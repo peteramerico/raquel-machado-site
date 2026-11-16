@@ -61,16 +61,80 @@ function criarRepositorio(pool) {
       return res.affectedRows === 0 ? null : res.insertId;
     },
 
-    // Ativa/desativa e INCREMENTA sessao_versao (desativar derruba a sessão na hora). Mesma guarda de papel.
+    // Ativa/desativa. SÓ muda (e só então incrementa sessao_versao, derrubando a sessão) se o estado realmente
+    // mudar: reativar conta já ativa não desloga ninguém. Com { papel }, a guarda vive no UPDATE.
+    // Devolve null (não encontrada / outro papel) ou { mudou, versao }.
     async definirAtivo(id, ativo, { papel } = {}) {
-      const params = [ativo ? 1 : 0, id];
-      if (papel) params.push(papel);
+      const alvo = ativo ? 1 : 0;
+      const filtro = [id];
+      if (papel) filtro.push(papel);
+      const base = `WHERE id = ?${papel ? ' AND papel = ?' : ''}`;
       const [res] = await pool.query(
-        `UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1)
-          WHERE id = ?${papel ? ' AND papel = ?' : ''}`,
-        params
+        `UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1) ${base} AND ativo <> ?`,
+        [alvo, ...filtro, alvo]
       );
-      return res.affectedRows === 0 ? null : res.insertId;
+      if (res.affectedRows === 1) return { mudou: true, versao: res.insertId };
+      const [rows] = await pool.query(`SELECT sessao_versao FROM usuarios ${base}`, filtro);
+      return rows[0] ? { mudou: false, versao: rows[0].sessao_versao } : null;
+    },
+
+    // Desativação para a área do administrador, com a TRAVA DO ÚLTIMO ADMIN (defesa em profundidade: por HTTP ela só
+    // dispara numa corrida). Serializa por um MUTEX NOMEADO (GET_LOCK), não por `SELECT … FOR UPDATE`: no índice
+    // (papel, ativo) o FOR UPDATE pega gap locks e duas desativações simultâneas dão DEADLOCK (provado no teste de
+    // integração). Com o mutex, quem chega depois espera e então lê o estado já gravado pelo primeiro.
+    // Devolve { ok:true, mudou, versao? } ou { ok:false, motivo:'nao_encontrada'|'ultimo_admin'|'ocupado' }.
+    async definirAtivoComTrava(id, ativo) {
+      const conn = await pool.getConnection();
+      let travou = false;
+      try {
+        const [[g]] = await conn.query("SELECT GET_LOCK('raquel_admins', 10) AS ok");
+        if (g.ok !== 1) return { ok: false, motivo: 'ocupado' };
+        travou = true;
+
+        const [alvos] = await conn.query('SELECT id, papel, ativo FROM usuarios WHERE id = ?', [id]);
+        const alvo = alvos[0];
+        if (!alvo) return { ok: false, motivo: 'nao_encontrada' };
+        if (Boolean(alvo.ativo) === ativo) return { ok: true, mudou: false };
+        if (!ativo && alvo.papel === 'admin') {
+          const [[c]] = await conn.query("SELECT COUNT(*) AS n FROM usuarios WHERE papel = 'admin' AND ativo = 1");
+          if (c.n <= 1) return { ok: false, motivo: 'ultimo_admin' };
+        }
+        const [res] = await conn.query(
+          'UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1) WHERE id = ?',
+          [ativo ? 1 : 0, id]
+        );
+        return { ok: true, mudou: true, versao: res.insertId };
+      } finally {
+        // o lock é da CONEXÃO: precisa ser solto antes de devolvê-la ao pool
+        if (travou) {
+          try { await conn.query("SELECT RELEASE_LOCK('raquel_admins')"); } catch { /* conexão caiu: o lock some com ela */ }
+        }
+        conn.release();
+      }
+    },
+
+    // Todas as contas para o administrador (sem hash): admin, médica, família; depois por nome.
+    // (ENUM ordena pelo índice: familia < medica < admin, então DESC.)
+    async listarUsuarios(limite = 500) {
+      const [rows] = await pool.query(
+        `SELECT id, login, nome, papel, contato, ativo, precisa_trocar_senha, ultimo_acesso_em, criado_em
+           FROM usuarios ORDER BY papel DESC, nome, id LIMIT ?`,
+        [limite + 1]
+      );
+      return {
+        truncada: rows.length > limite,
+        itens: rows.slice(0, limite).map((r) => ({
+          id: r.id,
+          login: r.login,
+          nome: r.nome,
+          papel: r.papel,
+          contato: r.contato,
+          ativo: Boolean(r.ativo),
+          precisaTrocarSenha: Boolean(r.precisa_trocar_senha),
+          ultimoAcessoEm: r.ultimo_acesso_em,
+          criadoEm: r.criado_em,
+        })),
+      };
     },
 
     // Contas de família para a área médica (sem hash). Devolve até `limite` e diz se havia mais.

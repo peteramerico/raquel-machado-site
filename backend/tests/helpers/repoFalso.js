@@ -37,9 +37,32 @@ function criarRepoFalso() {
     async definirAtivo(id, ativo, { papel } = {}) {
       const u = usuarios.find((x) => x.id === id && (!papel || x.papel === papel));
       if (!u) return null;
+      if (u.ativo === ativo) return { mudou: false, versao: u.sessaoVersao };
       u.ativo = ativo;
       u.sessaoVersao += 1;
-      return u.sessaoVersao;
+      return { mudou: true, versao: u.sessaoVersao };
+    },
+    // Mesma regra do SQL real (a atomicidade/ordem de locks é provada na integração, não aqui).
+    async definirAtivoComTrava(id, ativo) {
+      const u = usuarios.find((x) => x.id === id);
+      if (!u) return { ok: false, motivo: 'nao_encontrada' };
+      const admins = usuarios.filter((x) => x.papel === 'admin' && x.ativo);
+      if (!ativo && u.papel === 'admin' && u.ativo && admins.length <= 1) return { ok: false, motivo: 'ultimo_admin' };
+      if (u.ativo === ativo) return { ok: true, mudou: false };
+      u.ativo = ativo;
+      u.sessaoVersao += 1;
+      return { ok: true, mudou: true, versao: u.sessaoVersao };
+    },
+    async listarUsuarios(limite = 500) {
+      const peso = { admin: 3, medica: 2, familia: 1 };
+      const todos = [...usuarios].sort((a, b) => peso[b.papel] - peso[a.papel] || a.nome.localeCompare(b.nome) || a.id - b.id);
+      return {
+        truncada: todos.length > limite,
+        itens: todos.slice(0, limite).map((u) => ({
+          id: u.id, login: u.login, nome: u.nome, papel: u.papel, contato: u.contato, ativo: u.ativo,
+          precisaTrocarSenha: u.precisaTrocarSenha, ultimoAcessoEm: u.ultimoAcessoEm, criadoEm: u.criadoEm,
+        })),
+      };
     },
     async listarFamilias(limite = 500) {
       const todas = usuarios

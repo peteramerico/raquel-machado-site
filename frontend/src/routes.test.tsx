@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { routes } from './routes'
-import { GUIA_TESTE, USUARIO_FAMILIA, USUARIO_MEDICA, mockFetch } from './testUtils'
+import { GUIA_TESTE, USUARIO_ADMIN, USUARIO_FAMILIA, USUARIO_MEDICA, mockFetch } from './testUtils'
 
 function abrir(caminho: string) {
   const router = createMemoryRouter(routes, { initialEntries: [caminho] })
@@ -135,5 +135,49 @@ describe('área médica (/painel)', () => {
     })
     abrir('/familia')
     expect(await screen.findByRole('heading', { level: 1, name: 'Guia da consulta com a Dra. Raquel' })).toBeInTheDocument()
+  })
+})
+
+describe('administrador (/admin)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('/admin sem sessão vai para /admin/entrar (título "Administrador")', async () => {
+    mockFetch({ 'GET /api/auth/me': { status: 401, body: {} } })
+    const router = abrir('/admin')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/admin/entrar'))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Administrador' })).toBeInTheDocument()
+  })
+
+  it('médica logada em /admin vê "Acesso restrito" e NÃO dispara chamadas do admin', async () => {
+    const { chamadas } = mockFetch({ 'GET /api/auth/me': { body: USUARIO_MEDICA } })
+    abrir('/admin')
+    expect(await screen.findByRole('heading', { name: 'Acesso restrito' })).toBeInTheDocument()
+    expect(chamadas.some((c) => c.chave.includes('/api/admin'))).toBe(false)
+  })
+
+  it('família logada em /admin também vê "Acesso restrito"', async () => {
+    mockFetch({ 'GET /api/auth/me': { body: USUARIO_FAMILIA } })
+    abrir('/admin')
+    expect(await screen.findByRole('heading', { name: 'Acesso restrito' })).toBeInTheDocument()
+  })
+
+  it('admin logado vê as contas e o link para a Área médica', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: USUARIO_ADMIN },
+      'GET /api/admin/usuarios': { body: { itens: [], truncada: false } },
+    })
+    abrir('/admin')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Administrador' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 2, name: 'Equipe' })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Área médica' }).some((a) => a.getAttribute('href') === '/painel')).toBe(true)
+  })
+
+  it('o admin também entra na área médica e na da família (hierarquia)', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: USUARIO_ADMIN },
+      'GET /api/painel/familias': { body: { itens: [], truncada: false } },
+    })
+    abrir('/painel')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Área médica' })).toBeInTheDocument()
   })
 })

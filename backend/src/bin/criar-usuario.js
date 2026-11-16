@@ -2,6 +2,7 @@
 //   docker exec raquel-backend node src/bin/criar-usuario.js --papel admin --login peter --nome "Peter"
 //   docker exec raquel-backend node src/bin/criar-usuario.js --papel familia --login maria --nome "Maria Souza" --contato 5584999990000
 //   docker exec raquel-backend node src/bin/criar-usuario.js --redefinir --login maria
+//   docker exec raquel-backend node src/bin/criar-usuario.js --reativar --login maria   (destrava conta desativada)
 // A senha temporária (12 caracteres) é impressa UMA vez, na saída padrão; troca obrigatória no 1º acesso.
 const { senhaTemporaria, normalizarLogin, criarSenhas } = require('../senhas');
 
@@ -26,6 +27,14 @@ async function executar(argv, { repo, senhas, saida = console.log, erro = consol
   if (!LOGIN_OK.test(login)) {
     erro('Informe --login com 3 a 40 caracteres: letras, números, ponto, hífen ou sublinhado.');
     return 1;
+  }
+
+  if (args.reativar) {
+    const usuario = await repo.buscarUsuarioPorLogin(login);
+    if (!usuario) { erro(`Usuário "${login}" não encontrado.`); return 1; }
+    const r = await repo.definirAtivo(usuario.id, true);
+    saida(r && r.mudou ? `Conta "${login}" reativada.` : `Conta "${login}" já estava ativa.`);
+    return 0;
   }
 
   if (args.redefinir) {
