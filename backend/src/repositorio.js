@@ -79,38 +79,36 @@ function criarRepositorio(pool) {
     },
 
     // Desativação para a área do administrador, com a TRAVA DO ÚLTIMO ADMIN (defesa em profundidade: por HTTP ela só
-    // dispara numa corrida). Tudo numa transação. ORDEM DOS LOCKS: primeiro o conjunto de admins ativos (por id), depois
-    // o alvo — assim duas desativações simultâneas se serializam em vez de dar deadlock.
-    // Devolve { ok:true, mudou, versao? } ou { ok:false, motivo:'nao_encontrada'|'ultimo_admin' }.
+    // dispara numa corrida). Serializa por um MUTEX NOMEADO (GET_LOCK), não por `SELECT … FOR UPDATE`: no índice
+    // (papel, ativo) o FOR UPDATE pega gap locks e duas desativações simultâneas dão DEADLOCK (provado no teste de
+    // integração). Com o mutex, quem chega depois espera e então lê o estado já gravado pelo primeiro.
+    // Devolve { ok:true, mudou, versao? } ou { ok:false, motivo:'nao_encontrada'|'ultimo_admin'|'ocupado' }.
     async definirAtivoComTrava(id, ativo) {
       const conn = await pool.getConnection();
+      let travou = false;
       try {
-        await conn.beginTransaction();
-        const [admins] = await conn.query("SELECT id FROM usuarios WHERE papel = 'admin' AND ativo = 1 ORDER BY id FOR UPDATE");
-        const [alvos] = await conn.query('SELECT id, papel, ativo FROM usuarios WHERE id = ? FOR UPDATE', [id]);
+        const [[g]] = await conn.query("SELECT GET_LOCK('raquel_admins', 10) AS ok");
+        if (g.ok !== 1) return { ok: false, motivo: 'ocupado' };
+        travou = true;
+
+        const [alvos] = await conn.query('SELECT id, papel, ativo FROM usuarios WHERE id = ?', [id]);
         const alvo = alvos[0];
-        if (!alvo) {
-          await conn.rollback();
-          return { ok: false, motivo: 'nao_encontrada' };
-        }
-        if (!ativo && alvo.papel === 'admin' && alvo.ativo && admins.length <= 1) {
-          await conn.rollback();
-          return { ok: false, motivo: 'ultimo_admin' };
-        }
-        if (Boolean(alvo.ativo) === ativo) {
-          await conn.rollback();
-          return { ok: true, mudou: false };
+        if (!alvo) return { ok: false, motivo: 'nao_encontrada' };
+        if (Boolean(alvo.ativo) === ativo) return { ok: true, mudou: false };
+        if (!ativo && alvo.papel === 'admin') {
+          const [[c]] = await conn.query("SELECT COUNT(*) AS n FROM usuarios WHERE papel = 'admin' AND ativo = 1");
+          if (c.n <= 1) return { ok: false, motivo: 'ultimo_admin' };
         }
         const [res] = await conn.query(
           'UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1) WHERE id = ?',
           [ativo ? 1 : 0, id]
         );
-        await conn.commit();
         return { ok: true, mudou: true, versao: res.insertId };
-      } catch (err) {
-        try { await conn.rollback(); } catch { /* conexão já caiu */ }
-        throw err;
       } finally {
+        // o lock é da CONEXÃO: precisa ser solto antes de devolvê-la ao pool
+        if (travou) {
+          try { await conn.query("SELECT RELEASE_LOCK('raquel_admins')"); } catch { /* conexão caiu: o lock some com ela */ }
+        }
         conn.release();
       }
     },

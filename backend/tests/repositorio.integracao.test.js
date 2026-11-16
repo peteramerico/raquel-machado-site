@@ -152,29 +152,44 @@ descrever('repositório (MySQL real)', () => {
     expect(await repo.definirAtivoComTrava(fam, false)).toMatchObject({ ok: true, mudou: true });
   });
 
-  it('trava sob CONCORRÊNCIA: uma transação segura o conjunto de admins; a desativação concorrente espera e re-lê', async () => {
+  it('trava sob CONCORRÊNCIA: uma desativação segura o mutex; a outra ESPERA e depois lê o estado já gravado', async () => {
     await pool.query("DELETE FROM usuarios WHERE papel = 'admin'");
     const a = await repo.criarUsuario({ login: 'conc_a', nome: 'A', papel: 'admin', senhaHash: 'h' });
     const b = await repo.criarUsuario({ login: 'conc_b', nome: 'B', papel: 'admin', senhaHash: 'h' });
 
     const barreira = await pool.getConnection();
     try {
-      await barreira.beginTransaction();
-      await barreira.query("SELECT id FROM usuarios WHERE papel = 'admin' AND ativo = 1 ORDER BY id FOR UPDATE"); // segura os dois admins
+      const [[g]] = await barreira.query("SELECT GET_LOCK('raquel_admins', 5) AS ok");
+      expect(g.ok).toBe(1); // "o outro administrador" está no meio da desativação dele
 
       let resolvida = false;
       const pendente = repo.definirAtivoComTrava(a, false).then((r) => { resolvida = true; return r; });
       await new Promise((r) => setTimeout(r, 400));
-      expect(resolvida).toBe(false); // está BLOQUEADA esperando a barreira (serialização real)
+      expect(resolvida).toBe(false); // está BLOQUEADA esperando o mutex (serialização real)
 
-      await barreira.query('UPDATE usuarios SET ativo = 0 WHERE id = ?', [b]); // "o outro" desativa B primeiro
-      await barreira.commit();
+      await barreira.query('UPDATE usuarios SET ativo = 0 WHERE id = ?', [b]); // o outro desativa B...
+      await barreira.query("SELECT RELEASE_LOCK('raquel_admins')"); // ...e termina
 
-      // ao liberar, a desativação pendente re-lê (leitura com lock): só A restou ativo → recusa
+      // ao liberar, a pendente lê o estado novo: só A restou ativo → recusa (nunca ficam os dois inativos)
       expect(await pendente).toEqual({ ok: false, motivo: 'ultimo_admin' });
       expect((await repo.buscarUsuarioPorId(a)).ativo).toBe(true);
     } finally {
       barreira.release();
+    }
+  });
+
+  it('duas desativações SIMULTÂNEAS dos dois únicos admins: exatamente uma vence, sem deadlock', async () => {
+    await pool.query("DELETE FROM usuarios WHERE papel = 'admin'");
+    const a = await repo.criarUsuario({ login: 'par_a', nome: 'A', papel: 'admin', senhaHash: 'h' });
+    const b = await repo.criarUsuario({ login: 'par_b', nome: 'B', papel: 'admin', senhaHash: 'h' });
+    for (let rodada = 0; rodada < 5; rodada++) {
+      await pool.query("UPDATE usuarios SET ativo = 1 WHERE papel = 'admin'");
+      const [ra, rb] = await Promise.all([repo.definirAtivoComTrava(a, false), repo.definirAtivoComTrava(b, false)]);
+      const sucessos = [ra, rb].filter((r) => r.ok && r.mudou).length;
+      const recusas = [ra, rb].filter((r) => !r.ok && r.motivo === 'ultimo_admin').length;
+      expect([sucessos, recusas]).toEqual([1, 1]);
+      const [[{ n }]] = await pool.query("SELECT COUNT(*) AS n FROM usuarios WHERE papel = 'admin' AND ativo = 1");
+      expect(n).toBe(1);
     }
   });
 

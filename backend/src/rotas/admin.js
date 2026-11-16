@@ -103,11 +103,12 @@ function rotasAdmin({ repo, config, sessao, senhas, limites }) {
       try {
         r = await repo.definirAtivoComTrava(id, ativo);
       } catch (err) {
-        if (err.errno === 1213) return res.status(503).json({ erro: 'O sistema estava ocupado. Tente de novo.' }); // deadlock
+        if (err.errno === 1213) return res.status(503).json({ erro: 'O sistema estava ocupado. Tente de novo.' }); // deadlock (defensivo)
         throw err;
       }
       if (!r.ok) {
         if (r.motivo === 'ultimo_admin') return res.status(409).json({ erro: 'Mantenha ao menos um administrador ativo.' });
+        if (r.motivo === 'ocupado') return res.status(503).json({ erro: 'O sistema estava ocupado. Tente de novo.' });
         return res.status(404).json(MSG_NAO_ENCONTRADA);
       }
       res.json({ id, ativo });

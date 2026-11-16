@@ -242,6 +242,14 @@ describe('PATCH /api/admin/usuarios/:id (ativar/desativar)', () => {
     expect(await repo.definirAtivoComTrava(99, false)).toEqual({ ok: false, motivo: 'nao_encontrada' });
   });
 
+  it('mutex ocupado (motivo "ocupado") → 503 amigável', async () => {
+    const { app, repo, admin, medica } = await cenario();
+    repo.definirAtivoComTrava = async () => ({ ok: false, motivo: 'ocupado' });
+    const res = await patch(app, await entrar(app, admin), medica.id, { ativo: false });
+    expect(res.status).toBe(503);
+    expect(res.body.erro).toMatch(/tente de novo/i);
+  });
+
   it('deadlock do banco (errno 1213) → 503 amigável, nunca 500', async () => {
     const { app, repo, admin, medica } = await cenario();
     repo.definirAtivoComTrava = async () => { throw Object.assign(new Error('Deadlock'), { errno: 1213 }); };
