@@ -21,7 +21,7 @@
 
 ## Task 2 — Sessão (JWT/cookie) e middlewares
 **Files:** `src/sessao.js`, `src/middleware/{sessao,papel,origem}.js`, `tests/sessao.test.js`, `tests/middleware.test.js`.
-- [ ] **Testes:** `assinar({id, papel, senhaAtualizadaEm})`/`verificar` ida e volta; token adulterado/expirado → `null`; `tv` diferente do banco invalida; usuário `ativo=0` invalida; **papel vem do banco, não do token** (token com `papel:'admin'` de usuário `familia` ⇒ acesso de `familia`); cookie com `httpOnly`, `sameSite=lax`, `secure` só em produção. `exigirPapel('medica')` deixa passar `medica`/`admin`, barra `familia` (403); `exigirPapel('familia')` deixa os três; sem sessão → 401. `origem`: POST com `Origin: https://evil.com` e `Host: raquelmachadoped.com.br` → 403; mesmo host → ok; sem `Origin` → ok; GET nunca barrado.
+- [ ] **Testes:** `assinar({id, papel, senhaAtualizadaEm})`/`verificar` ida e volta; token adulterado/expirado → `null`; `v` (`sessao_versao`) diferente do banco invalida; usuário `ativo=0` invalida; **papel vem do banco, não do token** (token com `papel:'admin'` de usuário `familia` ⇒ acesso de `familia`); cookie com `httpOnly`, `sameSite=lax`, `secure` só em produção. `exigirPapel('medica')` deixa passar `medica`/`admin`, barra `familia` (403); `exigirPapel('familia')` deixa os três; sem sessão → 401. `origem`: POST com `Origin: https://evil.com` e `Host: raquelmachadoped.com.br` → 403; mesmo host → ok; sem `Origin` → ok; GET nunca barrado.
 - [ ] Implementar com o repositório injetado (`repo.buscarUsuarioPorId`). Commit.
 
 ## Task 3 — Repositório (SQL) e migrations
@@ -34,7 +34,7 @@
 ## Task 4 — Rotas de autenticação
 **Files:** `src/rotas/auth.js`, `src/app.js` (vira `criarApp`), `tests/auth.test.js`; atualizar `tests/health.test.js`.
 - [ ] **Testes (supertest + repositório falso):**
-  login ok (cookie `rm_session` httpOnly, corpo sem senha/hash) · senha errada → 401 genérico · login inexistente → mesma resposta **e** `bcrypt` foi chamado (tempo constante) · área inalcançável (`familia` entrando em `painel`) → 403 sem revelar a senha certa · usuário inativo → 401 · rate limit por IP e por login (429 após o limite; um login errado não bloqueia outro) · `GET /me` com/sem cookie · logout limpa o cookie · `trocar-senha`: valida política, exige senha atual correta, zera `precisa_trocar_senha`, emite novo cookie, e **o cookie antigo deixa de valer** (`tv`) · corpo não-JSON/campos faltando → 400 · Origin cruzado → 403.
+  login ok (cookie `rm_session` httpOnly, corpo sem senha/hash) · senha errada → 401 genérico · login inexistente → mesma resposta **e** `bcrypt` foi chamado (tempo constante) · área inalcançável (`familia` entrando em `painel`) → 403 sem revelar a senha certa · usuário inativo → 401 · rate limit por IP (30) e por login+IP (8) só nas falhas (429 após o limite; o mesmo login vindo de outro IP não é bloqueado) · `GET /me` com/sem cookie · logout limpa o cookie · `trocar-senha`: valida política, exige senha atual correta, zera `precisa_trocar_senha`, emite novo cookie, e **o cookie antigo deixa de valer** (`sessao_versao`) · corpo não-JSON/campos faltando → 400 · Origin cruzado → 403.
 - [ ] `app.js`: `criarApp({repo, config})`; `module.exports = criarApp()` com o repositório real **carregado de forma preguiçosa** (o teste de health continua sem MySQL). Rotas `/api/auth/*`. Commit.
 
 ## Task 5 — Guia pela API e valor da consulta
@@ -68,7 +68,7 @@
 - [ ] Garantir `JWT_SECRET` forte no `.env` da VPS **sem imprimir** (se curto/placeholder, gerar 64 hex e gravar; backup do `.env` antes).
 - [ ] Merge → deploys (workflow + cron) → migrations 002/003 → `docker logs`.
 - [ ] Criar `peter` (admin) e `raquel` (médica) via `docker exec … criar-usuario`; **combinar com o Peter como entregar as senhas temporárias** (não em texto no repositório; troca obrigatória no 1º acesso).
-- [ ] Verificação pública **sem autenticar**: `/api/familia/guia` → 401, `/api/auth/me` → 401, login errado → 401 genérico, 6ª tentativa → 429, `/familia` carrega a tela de login, bundle público **não contém** o texto do guia (`grep` no JS).
+- [ ] Verificação pública **sem autenticar**: `/api/familia/guia` → 401, `/api/auth/me` → 401, login errado → 401 genérico, 9ª falha seguida do mesmo login+IP → 429 (**usar login fictício**, nunca `peter`/`raquel` reais), `/familia` carrega a tela de login, bundle público **não contém** o texto do guia (`grep` no JS).
 - [ ] Registrar no vault; apagar a branch.
 
 ---
@@ -76,3 +76,22 @@
 ## Incrementos seguintes (planos próprios quando chegar a vez)
 - **Inc. 2 — `/painel`:** `GET/POST /api/painel/familias`, `POST …/:id/redefinir`, `PATCH …/:id` (ativar/desativar), `PUT /api/painel/config/valor-consulta`; telas com mensagem de WhatsApp pronta; menu "Área médica".
 - **Inc. 3 — `/admin`:** `GET/POST /api/admin/usuarios`, redefinir, desativar; trava para o último admin ativo; menu "Administrador".
+
+
+---
+
+## Emendas do plano após a revisão independente (valem sobre o texto acima; ver as 12 emendas do spec)
+
+- **Task 1:** + `BCRYPT_COST` configurável (teste = 4); senha máx. 72 bytes; igual ao `nome` recusada (testes); `config.js` com função `carregar(env)` testável e `JWT_SECRET` forte obrigatório em produção.
+- **Task 2:** middleware `sessao()` único com `precisa_trocar_senha` embutido (testes: rota qualquer → 403 `trocar_senha`; liberadas `/me`, `/logout`, `/trocar-senha`); `jwt.verify` com `algorithms:['HS256']`; `no-store`/`Vary: Cookie`/ETag off como middleware de `/api` (teste de cabeçalhos).
+- **Task 3:** + **`src/db.js`** (pool preguiçoso sem `multipleStatements`; corrigir o comentário do `seed.js`); migration `002` com `sessao_versao`; `atualizarSenha` incrementa `sessao_versao` e `desativar` também; o repositório falso imita (contador). Teste de integração cobre as duas coisas.
+- **Task 4:** limitadores dentro de `criarApp({ limites })`; handler de erro JSON (teste: corpo inválido → 400 JSON); destino pós-login (query `next`) só caminho interno; `GET /api/auth/login` continua 404 (rota só POST — `health.test.js` segue valendo).
+- **Task 5:** o 403 `trocar_senha` sai do middleware (não duplicar na rota).
+- **Task 7/8:** `AuthProvider` em `AreaRestrita` (layout das áreas restritas), **não** em `Raiz`; `BarraSessao` com "Sair" dentro das áreas; **`SiteHeader` não muda**; `robots.txt` só `/painel/` e `/admin/`; teste-guarda via `fs` (frontend + backend).
+- **Task 10 (produção) — ordem revisada:**
+  1. Backup do `.env` (`/root/backups/raquel-site/…`) e **gerar `JWT_SECRET` forte** (64 hex) no `.env` da VPS sem imprimir; conferir só comprimento/flags.
+  2. Pré-voo: testes, `compose config`, `docker build` **e boot check** (`docker run --rm --env-file .env -e NODE_ENV=production <img> node -e "require('./src/config').carregar(process.env)"` → deve passar).
+  3. `nginx.conf` do repo ganha **redirect `www` → apex** e um comentário documentando o `cloudflare-realip.conf`; aplicar na VPS (backup, `nginx -t`, reload) e testar `www`.
+  4. Merge → deploys (as duas pipelines podem entrar em ordem diferente: se o frontend entrar antes, `/familia` mostra "tentar de novo" por ~1 min — aceitável) → migrations 002/003 → logs.
+  5. Contas iniciais pela CLI; **checar o IP visto pelo limitador** (login fictício errado 9× de um IP → 429; do mesmo ponto com outro login → não bloqueado).
+  6. Verificação pública sem autenticar (401/403/429/`no-store`), bundle público **sem** o texto do guia; purgar cache do Cloudflare se possível.
