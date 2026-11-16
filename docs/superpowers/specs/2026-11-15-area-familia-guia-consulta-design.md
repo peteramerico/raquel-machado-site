@@ -61,6 +61,28 @@ frontend/src/
 - **Privacidade**: página não coleta dados; a política atual continua verdadeira.
 - **Sem backend, sem nginx, sem CSP novo**: só estático, fotos do próprio site (`img-src 'self'`).
 
+## Valor da consulta — fonte única (decisão do Peter, 2026-11-16)
+
+Quando existir a área médica, o valor da consulta será **alterado lá e refletido no site inteiro**. Por isso o preço nunca fica escrito em texto de página:
+
+- `src/lib/valorConsulta.ts` é o único lugar que conhece o número: `VALOR_CONSULTA_PADRAO = 400`, `formatarBRL()` e o hook `useValorConsulta()`. Toda tela que mostra preço chama o hook (hoje só `/familia`).
+- Hoje o hook devolve a constante. Na fase do login/área médica ele passa a buscar `GET /api/config/publica` (valor guardado numa tabela `configuracoes`, chave `valor_consulta`, editável na área médica — mesmo padrão do Primeiro Colo), caindo na constante se a API falhar. **Nenhuma página muda** nessa troca.
+- Um teste-guarda varre `src/` e falha se aparecer `R$ 400` / `400,00` escrito fora de `valorConsulta.ts`, para ninguém reintroduzir o preço fixo.
+
+## Direção de design (frontend-design)
+
+Conceito: **caderneta de acompanhamento** — um guia editorial que a família abre no celular e quer ler com calma. Tudo dentro da identidade do site; a ousadia vem de composição e detalhe, não de cor nova.
+
+- **Abertura:** fundo do hero do site (gradientes radiais rosa/ouro sobre creme); H1 grande em Fraunces com "consulta" em itálico rosa; foto dela em moldura redonda com anel tracejado que gira devagar e mancha rosa deslocada atrás.
+- **Capítulos numerados:** algarismos enormes em Fraunces (rosa-200) atrás do título; faixas alternadas creme / branco translúcido para dar ritmo de leitura.
+- **Retorno:** cartão claro (puericultura) × cartão em gradiente rosa-600→700 com texto branco (retorno).
+- **Calendário:** linha do tempo vertical com pontos; cada faixa de idade com a frequência em pílula; nota do prematuro num cartão com filete dourado.
+- **Pré-natal:** "28ª" gigante em itálico como elemento gráfico.
+- **O que trazer:** grade de cartões com marca de check.
+- **Urgência:** faixa ameixa-900 de alto contraste, a coisa mais forte da página de propósito.
+- **Valor:** cartão em formato de "ticket" com entalhes laterais e o preço em Fraunces grande.
+- **Movimento:** entrada escalonada do hero (CSS) e revelação ao rolar (IntersectionObserver) nos blocos; `prefers-reduced-motion` desliga tudo.
+
 ## Acessibilidade e qualidade
 
 - Um único `<h1>`; capítulos como `<section aria-labelledby>`; calendário como lista ordenada (ou tabela semântica), não `div` solta.
@@ -83,6 +105,7 @@ Branch `feat/area-familia-guia` → revisão → merge no `master` → deploy au
 
 ## Riscos e decisões em aberto
 
-- **Valor (R$ 400) público** até existir login — aceito pelo Peter ao seguir; página `noindex` e fora do sitemap mitiga indexação, não acesso por link.
+- **Valor (R$ 400) público** até existir login — aceito pelo Peter ao seguir; página `noindex` e fora do sitemap mitiga indexação, não acesso por link. O valor vem da fonte única acima.
+- **Cartões de "Retorno":** condensam, em frases literais do texto original, o parágrafo sobre retorno (nenhuma informação nova; o parágrafo introdutório é mantido na íntegra).
 - A refatoração Header/Footer toca a Home (única parte com risco de regressão visual) — mitigada pela comparação de capturas.
 - Ordem dos capítulos 4 e 5 (pré-natal antes de "o que trazer") segue o texto original; se o Peter preferir "o que trazer" mais perto do topo, é troca de posição no array de dados.
