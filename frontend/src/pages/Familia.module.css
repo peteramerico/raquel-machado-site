@@ -1,0 +1,773 @@
+/* Área da família — "Guia da consulta".
+   Conceito: caderneta de acompanhamento. Identidade do site (rosa · creme · ameixa,
+   Fraunces + Manrope); a ousadia vem de composição e detalhe, não de cor nova.
+   Tokens em src/styles/tokens.css. */
+
+.page {
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+.page a:focus-visible {
+  outline: 2px solid var(--rose-500);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── ABERTURA ──────────────────────────────────────── */
+
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 65% 55% at 5% 15%, rgba(214, 51, 132, 0.13), transparent 60%),
+    radial-gradient(ellipse 50% 45% at 95% 85%, rgba(201, 167, 123, 0.12), transparent 55%),
+    linear-gradient(155deg, var(--rose-100) 0%, var(--cream) 55%, #fef2f6 100%);
+}
+
+/* grão de papel, quase imperceptível */
+.heroBg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.heroInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 130px 48px 80px;
+  display: grid;
+  grid-template-columns: 58fr 42fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.heroTexto > * {
+  animation: subir 0.9s var(--ease-site) both;
+}
+.heroTexto > :nth-child(1) { animation-delay: 0.05s; }
+.heroTexto > :nth-child(2) { animation-delay: 0.14s; }
+.heroTexto > :nth-child(3) { animation-delay: 0.23s; }
+.heroTexto > :nth-child(4) { animation-delay: 0.32s; }
+.heroTexto > :nth-child(5) { animation-delay: 0.42s; }
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1.5px;
+  background: var(--rose-500);
+}
+
+.heroTitulo {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(40px, 6vw, 74px);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--plum-900);
+}
+
+.heroTitulo em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--rose-600);
+}
+
+.heroSub {
+  margin: 18px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.heroAbertura {
+  margin: 28px 0 0;
+  max-width: 56ch;
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+.indice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 36px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(214, 51, 132, 0.18);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--plum-900);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.25s var(--ease-site), box-shadow 0.25s;
+}
+
+.chip:hover {
+  background: var(--rose-100);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -12px rgba(143, 30, 86, 0.5);
+}
+
+.chipNum {
+  font-family: 'Fraunces', serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--rose-500);
+}
+
+.heroFoto {
+  position: relative;
+  justify-self: center;
+  animation: surgir 1.1s var(--ease-site) 0.15s both;
+}
+
+@keyframes surgir {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.fotoImg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(390px, 78vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 16%;
+  border: 6px solid #fff;
+  box-shadow: 0 34px 64px -26px rgba(143, 30, 86, 0.5);
+}
+
+.fotoAnel {
+  position: absolute;
+  inset: -20px;
+  z-index: 0;
+  border-radius: 50%;
+  border: 1.5px dashed var(--rose-300);
+  animation: girar 80s linear infinite;
+}
+
+.fotoMancha {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 50%;
+  background: var(--rose-200);
+  transform: translate(30px, 38px);
+  opacity: 0.8;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+/* ── CAPÍTULOS ─────────────────────────────────────── */
+
+.capitulo {
+  padding: 104px 48px;
+  scroll-margin-top: 72px;
+}
+
+.capitulo:nth-of-type(odd) {
+  background: var(--rose-50);
+  border-top: 1px solid rgba(214, 51, 132, 0.08);
+  border-bottom: 1px solid rgba(214, 51, 132, 0.08);
+}
+
+.capInner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.capCabecalho {
+  position: relative;
+  margin-bottom: 36px;
+}
+
+.capNumero {
+  position: absolute;
+  top: 0;
+  left: -6px;
+  z-index: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(96px, 16vw, 172px);
+  line-height: 0.75;
+  letter-spacing: -0.04em;
+  color: var(--rose-200);
+  user-select: none;
+}
+
+.capTitulo {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding-top: clamp(44px, 8vw, 88px);
+  max-width: 20ch;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(28px, 4.4vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--plum-900);
+}
+
+.prosa {
+  max-width: 62ch;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--ink-soft);
+}
+
+.prosa p { margin: 0; }
+.prosa p + p { margin-top: 1.1em; }
+
+/* ── REVELAR AO ROLAR ──────────────────────────────── */
+
+.revelar {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.7s var(--ease-site) var(--atraso, 0ms),
+    transform 0.7s var(--ease-site) var(--atraso, 0ms);
+}
+
+.revelar[data-visivel='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* grupos: o contêiner não some, cada filho entra em sequência */
+.grupo.revelar {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.grupo .faixa,
+.grupo .item {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.6s var(--ease-site) calc(var(--i, 0) * 80ms),
+    transform 0.6s var(--ease-site) calc(var(--i, 0) * 80ms);
+}
+
+.grupo[data-visivel='true'] .faixa,
+.grupo[data-visivel='true'] .item {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── RETORNO: dois cartões ─────────────────────────── */
+
+.comparar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 36px;
+}
+
+.cartaoClaro,
+.cartaoRosa {
+  border-radius: 26px;
+  padding: 32px 30px;
+}
+
+.cartaoClaro {
+  background: #fff;
+  border: 1px solid var(--rose-200);
+  box-shadow: 0 18px 36px -28px rgba(143, 30, 86, 0.35);
+}
+
+.cartaoRosa {
+  background: linear-gradient(155deg, var(--rose-600), var(--rose-700));
+  color: #fff;
+  box-shadow: 0 28px 48px -26px rgba(143, 30, 86, 0.6);
+}
+
+.cartaoRotulo {
+  display: block;
+  margin-bottom: 20px;
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.cartaoClaro .cartaoRotulo { color: var(--plum-900); }
+
+.pontos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.pontos li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+.cartaoClaro .pontos li { color: var(--ink-soft); }
+.cartaoRosa .pontos li { color: rgba(255, 255, 255, 0.92); }
+
+.pontos li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.cartaoClaro .pontos li::before { background: var(--rose-500); }
+.cartaoRosa .pontos li::before { background: var(--rose-200); }
+
+/* ── CALENDÁRIO: linha do tempo ────────────────────── */
+
+.linhaTempo {
+  position: relative;
+  list-style: none;
+  margin: 40px 0 28px;
+  padding: 0 0 0 34px;
+}
+
+.linhaTempo::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(var(--rose-300), var(--rose-100));
+}
+
+.faixa {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 12px;
+  padding: 18px 22px;
+  background: #fff;
+  border: 1px solid rgba(214, 51, 132, 0.1);
+  border-radius: 18px;
+  box-shadow: 0 12px 26px -20px rgba(143, 30, 86, 0.4);
+}
+
+.faixaPonto {
+  position: absolute;
+  left: -27px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--rose-500);
+  box-shadow: 0 0 0 4px var(--cream), 0 0 0 5.5px var(--rose-200);
+}
+
+.faixaIdade {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--plum-900);
+}
+
+.faixaFreq {
+  padding: 7px 14px;
+  border-radius: 50px;
+  background: var(--rose-100);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rose-700);
+}
+
+.notaOuro {
+  max-width: 68ch;
+  padding: 24px 28px;
+  border-left: 4px solid var(--gold);
+  border-radius: 0 20px 20px 0;
+  background: color-mix(in srgb, var(--gold) 14%, #fff);
+}
+
+.notaOuro p {
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+.notaRotulo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+/* ── PRÉ-NATAL ─────────────────────────────────────── */
+
+.prenatal {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+.semana {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.semanaNum {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(120px, 20vw, 224px);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  background: linear-gradient(160deg, var(--rose-500) 10%, var(--rose-300) 95%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.semanaLegenda {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.destaqueInline {
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--rose-100);
+  font-weight: 600;
+  color: var(--rose-700);
+}
+
+/* ── O QUE TRAZER ──────────────────────────────────── */
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 14px;
+  row-gap: 4px;
+  align-items: start;
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid rgba(214, 51, 132, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px -22px rgba(143, 30, 86, 0.4);
+}
+
+.check {
+  grid-row: 1 / span 2;
+  width: 28px;
+  height: 28px;
+  color: var(--rose-500);
+}
+
+.itemTitulo {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--plum-900);
+}
+
+.itemDetalhe {
+  grid-column: 2;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+
+/* ── WHATSAPP ──────────────────────────────────────── */
+
+.horarios {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.horario {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 22px 24px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid var(--rose-200);
+}
+
+.horarioQuando {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.horarioComo {
+  font-family: 'Fraunces', serif;
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--plum-900);
+}
+
+.urgencia {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-top: 20px;
+  padding: 30px 34px;
+  border-radius: 28px;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 60% 120% at 100% 0%, rgba(214, 51, 132, 0.4), transparent 60%),
+    var(--plum-900);
+  box-shadow: 0 30px 54px -28px rgba(43, 20, 36, 0.7);
+}
+
+.urgencia p {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(21px, 3vw, 30px);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.urgenciaIcone {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  padding: 10px;
+  border-radius: 50%;
+  background: rgba(242, 169, 195, 0.16);
+  color: var(--rose-300);
+}
+
+/* ── VALOR: ticket ─────────────────────────────────── */
+
+.ticket {
+  position: relative;
+  max-width: 520px;
+  margin: 8px auto 0;
+  padding: 38px 32px 42px;
+  text-align: center;
+  background: #fff;
+  border-radius: 28px;
+  box-shadow: 0 30px 54px -30px rgba(143, 30, 86, 0.45), 0 0 0 1px rgba(214, 51, 132, 0.1);
+}
+
+.ticketRotulo {
+  position: relative;
+  display: block;
+  margin: 0 -32px;
+  padding: 0 32px 26px;
+  border-bottom: 1.5px dashed var(--rose-200);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+/* entalhes laterais do "ticket" (cor do fundo do capítulo) */
+.ticketRotulo::before,
+.ticketRotulo::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cream);
+  box-shadow: inset 0 0 0 1px rgba(214, 51, 132, 0.1);
+}
+.ticketRotulo::before { left: -14px; }
+.ticketRotulo::after  { right: -14px; }
+
+.ticketPreco {
+  display: block;
+  margin-top: 28px;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(54px, 11vw, 88px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--rose-600);
+}
+
+/* ── ASSINATURA ────────────────────────────────────── */
+
+.assinatura {
+  padding: 80px 24px 104px;
+  text-align: center;
+}
+
+.assinaturaFoto {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 20%;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 1.5px var(--rose-300), 0 18px 30px -16px rgba(143, 30, 86, 0.5);
+}
+
+.assinaturaNome {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: -0.02em;
+  color: var(--plum-900);
+}
+
+.assinaturaTitulo {
+  margin: 8px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+/* ── MOBILE ────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .hero { min-height: 0; }
+
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 44px;
+    padding: 104px 24px 56px;
+  }
+
+  .heroFoto { order: -1; margin: 8px 0 12px; }
+  .fotoMancha { transform: translate(20px, 26px); }
+
+  .indice {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -24px;
+    padding: 4px 24px 12px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .indice::-webkit-scrollbar { display: none; }
+  .chip { scroll-snap-align: start; }
+
+  .capitulo { padding: 72px 20px; }
+
+  .comparar,
+  .horarios { grid-template-columns: 1fr; }
+
+  .prenatal {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .faixa { padding: 16px 18px; }
+  .faixaIdade { font-size: 18px; }
+
+  .urgencia { padding: 24px 22px; gap: 16px; border-radius: 24px; }
+  .urgenciaIcone { width: 40px; height: 40px; padding: 9px; }
+}
+
+/* ── MOVIMENTO REDUZIDO ────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .heroTexto > *,
+  .heroFoto,
+  .fotoAnel { animation: none; }
+
+  .revelar,
+  .grupo .faixa,
+  .grupo .item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .chip { transition: none; }
+}
