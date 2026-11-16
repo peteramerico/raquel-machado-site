@@ -1,7 +1,11 @@
-import { useEffect, type CSSProperties, type ReactNode } from 'react'
-import { guia } from '../content/guiaConsulta'
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from 'react'
+import BarraSessao from '../components/BarraSessao'
+import { api, ApiErro } from '../lib/api'
+import { useAuth } from '../lib/auth'
+import { formatarBRL } from '../lib/formatar'
+import type { Guia, RespostaGuia } from '../lib/tipos'
+import { useNoIndex } from '../lib/useNoIndex'
 import { useRevelar } from '../lib/useRevelar'
-import { formatarBRL, useValorConsulta } from '../lib/valorConsulta'
 import styles from './Familia.module.css'
 
 function Revelar({ children, atraso = 0, className = '' }: { children: ReactNode; atraso?: number; className?: string }) {
@@ -18,7 +22,7 @@ function Revelar({ children, atraso = 0, className = '' }: { children: ReactNode
   )
 }
 
-function Capitulo({ id, numero, children }: { id: string; numero: number; children: ReactNode }) {
+function Capitulo({ guia, id, numero, children }: { guia: Guia; id: string; numero: number; children: ReactNode }) {
   const cap = guia.capitulos.find((c) => c.id === id)!
   return (
     <section id={id} className={styles.capitulo} aria-labelledby={`${id}-titulo`}>
@@ -33,24 +37,7 @@ function Capitulo({ id, numero, children }: { id: string; numero: number; childr
   )
 }
 
-export default function Familia() {
-  const valor = useValorConsulta()
-
-  // Página sem login por enquanto: não indexar. (Sem Disallow no robots.txt de propósito —
-  // ele esconderia o noindex e ainda anunciaria a URL.)
-  useEffect(() => {
-    const tituloAnterior = document.title
-    document.title = 'Guia da consulta · Dra. Raquel Machado'
-    const meta = document.createElement('meta')
-    meta.name = 'robots'
-    meta.content = 'noindex'
-    document.head.appendChild(meta)
-    return () => {
-      document.title = tituloAnterior
-      meta.remove()
-    }
-  }, [])
-
+function GuiaConteudo({ guia, valorConsulta }: { guia: Guia; valorConsulta: number }) {
   const { puericultura, retorno, calendario, prenatal, trazer, whatsapp } = guia
 
   return (
@@ -59,6 +46,7 @@ export default function Familia() {
         {/* ABERTURA */}
         <section className={styles.hero}>
           <div className={styles.heroBg} />
+          <div className={styles.sessao}><BarraSessao /></div>
           <div className={styles.heroInner}>
             <div className={styles.heroTexto}>
               <p className={styles.eyebrow}>Área da família</p>
@@ -85,14 +73,14 @@ export default function Familia() {
         </section>
 
         {/* 1 PUERICULTURA */}
-        <Capitulo id="puericultura" numero={1}>
+        <Capitulo guia={guia} id="puericultura" numero={1}>
           <Revelar className={styles.prosa}>
             {puericultura.map((p) => <p key={p}>{p}</p>)}
           </Revelar>
         </Capitulo>
 
         {/* 2 RETORNO */}
-        <Capitulo id="retorno" numero={2}>
+        <Capitulo guia={guia} id="retorno" numero={2}>
           <Revelar className={styles.prosa}><p>{retorno.intro}</p></Revelar>
           <div className={styles.comparar}>
             <Revelar className={styles.cartaoClaro}>
@@ -107,7 +95,7 @@ export default function Familia() {
         </Capitulo>
 
         {/* 3 CALENDÁRIO */}
-        <Capitulo id="calendario" numero={3}>
+        <Capitulo guia={guia} id="calendario" numero={3}>
           <Revelar className={styles.prosa}><p>{calendario.intro}</p></Revelar>
           <Revelar className={styles.grupo}>
             <ol className={styles.linhaTempo}>
@@ -127,7 +115,7 @@ export default function Familia() {
         </Capitulo>
 
         {/* 4 PRÉ-NATAL */}
-        <Capitulo id="prenatal" numero={4}>
+        <Capitulo guia={guia} id="prenatal" numero={4}>
           <div className={styles.prenatal}>
             <Revelar className={styles.semana}>
               <span className={styles.semanaNum} aria-hidden="true">{prenatal.semana}</span>
@@ -141,7 +129,7 @@ export default function Familia() {
         </Capitulo>
 
         {/* 5 O QUE TRAZER */}
-        <Capitulo id="trazer" numero={5}>
+        <Capitulo guia={guia} id="trazer" numero={5}>
           <Revelar className={styles.grupo}>
             <ul className={styles.checklist}>
               {trazer.itens.map((it, i) => (
@@ -159,7 +147,7 @@ export default function Familia() {
         </Capitulo>
 
         {/* 6 WHATSAPP */}
-        <Capitulo id="whatsapp" numero={6}>
+        <Capitulo guia={guia} id="whatsapp" numero={6}>
           <Revelar className={styles.prosa}><p>{whatsapp.texto}</p></Revelar>
           <div className={styles.horarios}>
             {whatsapp.horarios.map((h) => (
@@ -179,10 +167,10 @@ export default function Familia() {
         </Capitulo>
 
         {/* 7 VALOR */}
-        <Capitulo id="valor" numero={7}>
+        <Capitulo guia={guia} id="valor" numero={7}>
           <Revelar className={styles.ticket}>
             <span className={styles.ticketRotulo}>{guia.valor.rotulo}</span>
-            <span className={styles.ticketPreco}>{formatarBRL(valor)}</span>
+            <span className={styles.ticketPreco}>{formatarBRL(valorConsulta)}</span>
           </Revelar>
         </Capitulo>
 
@@ -192,6 +180,62 @@ export default function Familia() {
           <p className={styles.assinaturaNome}>{guia.assinatura.nome}</p>
           <p className={styles.assinaturaTitulo}>{guia.assinatura.titulo}</p>
         </section>
+      </main>
+    </div>
+  )
+}
+
+type Estado =
+  | { situacao: 'carregando' }
+  | { situacao: 'erro'; mensagem: string }
+  | { situacao: 'ok'; dados: RespostaGuia }
+
+// Página da Área da família: o guia vem da API (só para quem está logado); não fica no bundle público.
+export default function Familia() {
+  const { recarregar } = useAuth()
+  const [estado, setEstado] = useState<Estado>({ situacao: 'carregando' })
+  const [tentativa, setTentativa] = useState(0)
+
+  useNoIndex('Guia da consulta · Dra. Raquel Machado')
+
+  const buscar = useCallback(async (): Promise<Estado> => {
+    try {
+      return { situacao: 'ok', dados: await api<RespostaGuia>('/familia/guia') }
+    } catch (err) {
+      if (err instanceof ApiErro && (err.status === 401 || err.codigo === 'trocar_senha')) {
+        void recarregar() // sessão caiu / senha pendente: a guarda de rota decide a próxima tela
+        return { situacao: 'carregando' }
+      }
+      return { situacao: 'erro', mensagem: err instanceof ApiErro ? err.message : 'Não foi possível carregar o guia agora.' }
+    }
+  }, [recarregar])
+
+  useEffect(() => {
+    let ativo = true
+    buscar().then((e) => {
+      if (ativo) setEstado(e)
+    })
+    return () => {
+      ativo = false
+    }
+  }, [buscar, tentativa])
+
+  if (estado.situacao === 'ok') return <GuiaConteudo guia={estado.dados.guia} valorConsulta={estado.dados.valorConsulta} />
+
+  return (
+    <div className={styles.page}>
+      <main className={styles.estadoPagina}>
+        <div className={styles.sessao}><BarraSessao /></div>
+        {estado.situacao === 'carregando' ? (
+          <p role="status" className={styles.estadoTexto}>Carregando o guia…</p>
+        ) : (
+          <div className={styles.estadoErro}>
+            <p role="alert" className={styles.estadoTexto}>{estado.mensagem}</p>
+            <button type="button" className={styles.estadoBotao} onClick={() => { setEstado({ situacao: 'carregando' }); setTentativa((n) => n + 1) }}>
+              Tentar de novo
+            </button>
+          </div>
+        )}
       </main>
     </div>
   )
