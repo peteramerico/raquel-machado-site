@@ -1,0 +1,17 @@
+:root {
+  --rose-50: #fff5f8;
+  --rose-100: #fde7ef;
+  --rose-200: #f9cfdf;
+  --rose-300: #f2a9c3;
+  --rose-500: #d63384;
+  --rose-600: #b8296f;
+  --rose-700: #8f1e56;
+  --plum-900: #2b1424;
+  --cream: #fff8f3;
+  --ink: #2b1424;
+  --ink-soft: #6a4a59;
+  --ink-mute: #9a7a89;
+  --gold: #c9a77b;
+  --gold-700: #7a5c32;
+  --ease-site: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
