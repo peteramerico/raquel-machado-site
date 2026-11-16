@@ -8,6 +8,7 @@ const { criarSessao } = require('./sessao');
 const { semCache } = require('./middleware/semCache');
 const { origem } = require('./middleware/origem');
 const { rotasAuth } = require('./rotas/auth');
+const { rotasFamilia } = require('./rotas/familia');
 
 const MIN15 = 15 * 60 * 1000;
 const LIMITES_PADRAO = {
@@ -37,8 +38,9 @@ function criarApp({ repo, config = carregar(), limites = {} } = {}) {
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
   app.use('/api/auth', rotasAuth({ repo, config, sessao, senhas, limites: lim }));
+  app.use('/api/familia', rotasFamilia({ repo, config, sessao }));
 
-  // Incremento 1 (Task 5) acrescenta /api/familia; Incrementos 2 e 3, /api/painel e /api/admin.
+  // Incrementos 2 e 3 acrescentam /api/painel e /api/admin.
 
   app.use('/api', (req, res) => res.status(404).json({ erro: 'Não encontrado.' }));
 
