@@ -6,7 +6,7 @@ const mysql = require('mysql2/promise');
 const { migrar } = require('./migrar');
 
 async function main() {
-  // Pool dedicado com multipleStatements só para as migrations; o pool da aplicação (db.js) não habilita.
+  // Pool dedicado com multipleStatements só para as migrations; o pool da aplicação (src/db.js) não habilita.
   const pool = mysql.createPool({
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 3306,
