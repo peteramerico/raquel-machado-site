@@ -1,8 +1,10 @@
+import { primeiroNome } from './nome'
+
 const QUEBRA = String.fromCharCode(10)
 
 // Mensagem de acesso para a médica mandar à família (texto neutro, em português).
 export function mensagemAcesso({ nome, login, senha, url }: { nome: string; login: string; senha: string; url: string }): string {
-  const primeiro = nome.trim().split(/\s+/)[0]
+  const primeiro = primeiroNome(nome)
   return [
     `Olá, ${primeiro}! A Dra. Raquel liberou o seu acesso à Área da família do site.`,
     '',
@@ -22,7 +24,7 @@ export function linkWhatsApp(contato: string | null, texto: string): string | nu
 
 // Mensagem de acesso para a EQUIPE (médica/admin): sem WhatsApp, só o necessário para o primeiro login.
 export function mensagemAcessoEquipe({ nome, login, senha, url, area }: { nome: string; login: string; senha: string; url: string; area: string }): string {
-  const primeiro = nome.trim().split(/\s+/)[0]
+  const primeiro = primeiroNome(nome)
   return [
     `Olá, ${primeiro}! Seu acesso à ${area} do site da Dra. Raquel foi criado.`,
     '',
