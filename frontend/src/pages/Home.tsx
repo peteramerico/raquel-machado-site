@@ -1,6 +1,4 @@
 import styles from './Home.module.css'
-import SiteHeader from '../components/SiteHeader'
-import SiteFooter from '../components/SiteFooter'
 import { WHATSAPP_CATIVA, WHATSAPP_FABRICA } from '../content/contatos'
 
 
@@ -34,8 +32,6 @@ const testimonials = [
 export default function Home() {
   return (
     <div className={styles.page}>
-
-      <SiteHeader />
 
       {/* HERO */}
       <section className={styles.hero}>
@@ -272,8 +268,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <SiteFooter />
 
     </div>
   )

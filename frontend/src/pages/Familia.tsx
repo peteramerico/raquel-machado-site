@@ -1,6 +1,4 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react'
-import SiteFooter from '../components/SiteFooter'
-import SiteHeader from '../components/SiteHeader'
 import { guia } from '../content/guiaConsulta'
 import { useRevelar } from '../lib/useRevelar'
 import { formatarBRL, useValorConsulta } from '../lib/valorConsulta'
@@ -57,7 +55,6 @@ export default function Familia() {
 
   return (
     <div className={styles.page}>
-      <SiteHeader />
       <main>
         {/* ABERTURA */}
         <section className={styles.hero}>
@@ -196,7 +193,6 @@ export default function Familia() {
           <p className={styles.assinaturaTitulo}>{guia.assinatura.titulo}</p>
         </section>
       </main>
-      <SiteFooter />
     </div>
   )
 }
