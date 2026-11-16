@@ -64,3 +64,20 @@
 ### Task 6 — E2E local + produção
 - Local (MySQL no WSL + Chrome): médica cria acesso → copia a mensagem → família entra com a temporária e troca → médica redefine/desativa/reativa → família com sessão aberta cai → médica edita o valor e o guia mostra o novo; família no `/painel` → "Acesso restrito"; mobile (390 px).
 - Produção: pré-voo na VPS (testes, compose config, docker build, boot check), merge, deploys, verificação **sem autenticar** (todas as rotas novas → 401) e smoke do bundle; o fluxo logado completo da médica real fica para o primeiro uso da Raquel. Registrar no vault; apagar a branch.
+
+
+---
+
+## Emendas após a revisão independente (valem sobre o texto acima)
+
+1. **Limitador de geração de senha PRÓPRIO** (`limites.geracaoSenha`, 30/hora): `skipSuccessfulRequests: false` (criar/redefinir com sucesso TAMBÉM contam), chave `u${req.usuario.id}`, montado **depois** de `sessao()` e `exigirPapel('medica')`. Não reutilizar o `criarLimitador` do login (ele só conta falhas). Teste: N sucessos seguidos → 429.
+2. **Valor da consulta — parser estrito** (`backend/src/valor.js`): aceita só `number` finito ou string `/^\d{1,6}([.,]\d{1,2})?$/` (vírgula pt-BR permitida); converte para **centavos inteiros** (sem ponto flutuante); **recusa** mais de 2 casas (400, sem arredondar em silêncio); faixa 1,00–100.000,00. Recusa `true`, `""`, `"0x10"`, `"1e3"`, `[450]`, `null`, `NaN`, `Infinity`. Grava `"450.50"`.
+3. **Login gerado:** base truncada em 30 caracteres; base < 3 caracteres → `fam` + o que houver (`li` → `lifam`; vazio → `familia`); logins **reservados** (`admin`, `administrador`, `root`, `painel`, `api`, `suporte`, `raquel`, `peter`, `familia`…) recebem sufixo; sufixo numérico até 99 e depois 3 dígitos aleatórios, sempre respeitando 40 caracteres; `existe` é **async**. Testes: nome de 80 letras, sufixo no limite, reservados.
+4. **`:id` estrito:** `/^[1-9]\d{0,9}$/` (testar `1e3`, `01`, ` 1`, `1.0`, `0x10`, `99999999999`) → 400.
+5. **Escrita com guarda de papel no SQL:** `atualizarSenha(id, hash, pendente, { papel })` e `definirAtivo(id, ativo, { papel })` fazem `UPDATE … WHERE id = ? AND papel = ?` e devolvem `null` quando nenhuma linha casa (→ 404); sem ler-e-depois-escrever. Repo falso idem. As rotas do painel passam `{ papel: 'familia' }`.
+6. **Senha temporária sem expiração = risco aceito e documentado** (nesta fase): ela só vale até o 1º login, a troca é obrigatória, e o login tem rate limit por (login+IP). Mitigação futura: expirar em 72 h (coluna nova). Aviso na tela: "peça para a família entrar logo". O link `wa.me?text=` leva a senha para o histórico do navegador de quem envia — dito no aviso.
+7. **Criação não idempotente:** botão desabilitado durante o envio; cartão de credenciais avisa "esta senha só aparece agora — copie ou envie antes de fechar" e confirma antes de fechar sem ter copiado/enviado.
+8. **Contato:** remove máscara (`(84) 99999-0000` → dígitos); se informado e inválido → **400**; 10–11 dígitos ganham prefixo `55`; 12–13 dígitos começando em `55` ficam; fora disso → 400. (O `wa.me` exige DDI.)
+9. **401 no meio da sessão:** as páginas do painel, ao receber `ApiErro` 401, chamam `recarregar()` do `useAuth` e a guarda redireciona ao login (sem mostrar "erro" confuso).
+10. **Caminho do valor:** `GET/PUT /api/painel/config` (e **não** `/config/valor-consulta`); o spec geral é corrigido.
+11. **Menores:** `paraUsuario` passa a incluir `criadoPor`; repo falso guarda `criadoEm`, `ultimoAcessoEm` e `atualizadoPor`; **redefinir conta desativada → 409**; `PATCH` só aceita `ativo` booleano **estrito** (`"false"`/`0` → 400) e ignora campos extras (`papel`, `nome`) — com teste de mass assignment; a lista devolve `truncada: true` se passar de 500; placeholders do frontend sem o preço antigo (o `precoFixo.test` varre `src`).
