@@ -71,4 +71,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: cd /opt/raquel-backend && docker compose up -d --build
+          # flock: o cron da VPS também faz compose up; um de cada vez
+          script: cd /opt/raquel-backend && flock -w 600 /var/lock/raquel-compose.lock docker compose up -d --build
