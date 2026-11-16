@@ -9,12 +9,14 @@ const { semCache } = require('./middleware/semCache');
 const { origem } = require('./middleware/origem');
 const { rotasAuth } = require('./rotas/auth');
 const { rotasFamilia } = require('./rotas/familia');
+const { rotasPainel } = require('./rotas/painel');
 
 const MIN15 = 15 * 60 * 1000;
 const LIMITES_PADRAO = {
   ip: { windowMs: MIN15, limit: 30 }, // falhas de login por IP
   loginIp: { windowMs: MIN15, limit: 8 }, // falhas por (login + IP)
   trocarSenha: { windowMs: MIN15, limit: 10 }, // tentativas de trocar senha por usuário
+  geracaoSenha: { windowMs: 60 * 60 * 1000, limit: 30 }, // criar/redefinir acesso por usuário da equipe (conta sucessos)
 };
 
 // Fábrica do app: tudo que tem efeito colateral (banco, segredo, limites) entra por parâmetro,
@@ -39,8 +41,9 @@ function criarApp({ repo, config = carregar(), limites = {} } = {}) {
   app.get('/api/health', (req, res) => res.json({ ok: true }));
   app.use('/api/auth', rotasAuth({ repo, config, sessao, senhas, limites: lim }));
   app.use('/api/familia', rotasFamilia({ repo, config, sessao }));
+  app.use('/api/painel', rotasPainel({ repo, config, sessao, senhas, limites: lim }));
 
-  // Incrementos 2 e 3 acrescentam /api/painel e /api/admin.
+  // Incremento 3 acrescenta /api/admin.
 
   app.use('/api', (req, res) => res.status(404).json({ erro: 'Não encontrado.' }));
 

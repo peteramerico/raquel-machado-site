@@ -7,6 +7,9 @@ import Entrar from './pages/Entrar'
 import Familia from './pages/Familia'
 import Home from './pages/Home'
 import Links from './pages/Links'
+import PainelFamilias from './pages/painel/PainelFamilias'
+import PainelLayout from './pages/painel/PainelLayout'
+import PainelValor from './pages/painel/PainelValor'
 import Privacidade from './pages/Privacidade'
 import TrocarSenha from './pages/TrocarSenha'
 
@@ -27,6 +30,19 @@ export const routes: RouteObject[] = [
               {
                 element: <RequerPapel area="familia" />,
                 children: [{ path: '/familia', element: <Familia /> }],
+              },
+              { path: '/painel/entrar', element: <Entrar area="painel" /> },
+              {
+                element: <RequerPapel area="painel" />,
+                children: [
+                  {
+                    element: <PainelLayout />,
+                    children: [
+                      { path: '/painel', element: <PainelFamilias /> },
+                      { path: '/painel/valor', element: <PainelValor /> },
+                    ],
+                  },
+                ],
               },
             ],
           },

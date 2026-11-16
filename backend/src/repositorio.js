@@ -1,7 +1,7 @@
 // ÚNICO lugar com SQL da aplicação. Só consultas parametrizadas. A interface é espelhada
 // em memória por tests/helpers/repoFalso.js (testes de rotas) e validada contra MySQL real
 // por tests/repositorio.integracao.test.js.
-const COLUNAS = 'id, login, nome, papel, senha_hash, precisa_trocar_senha, ativo, sessao_versao, contato';
+const COLUNAS = 'id, login, nome, papel, senha_hash, precisa_trocar_senha, ativo, sessao_versao, contato, criado_por';
 
 function paraUsuario(r) {
   if (!r) return null;
@@ -15,6 +15,7 @@ function paraUsuario(r) {
     ativo: Boolean(r.ativo),
     sessaoVersao: r.sessao_versao,
     contato: r.contato,
+    criadoPor: r.criado_por,
   };
 }
 
@@ -46,14 +47,52 @@ function criarRepositorio(pool) {
 
     // Troca a senha e INCREMENTA sessao_versao (derruba as sessões antigas). Devolve a nova versão.
     // LAST_INSERT_ID(expr) devolve o valor calculado em result.insertId numa única instrução (sem corrida).
-    async atualizarSenha(id, senhaHash, precisaTrocarSenha) {
+    // Com { papel }, o UPDATE só casa se a conta tem esse papel (a médica só mexe em famílias): devolve null se
+    // nenhuma linha casar — sem ler-e-depois-escrever.
+    async atualizarSenha(id, senhaHash, precisaTrocarSenha, { papel } = {}) {
+      const params = [senhaHash, precisaTrocarSenha ? 1 : 0, id];
+      if (papel) params.push(papel);
       const [res] = await pool.query(
         `UPDATE usuarios
             SET senha_hash = ?, precisa_trocar_senha = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1)
-          WHERE id = ?`,
-        [senhaHash, precisaTrocarSenha ? 1 : 0, id]
+          WHERE id = ?${papel ? ' AND papel = ?' : ''}`,
+        params
       );
-      return res.insertId;
+      return res.affectedRows === 0 ? null : res.insertId;
+    },
+
+    // Ativa/desativa e INCREMENTA sessao_versao (desativar derruba a sessão na hora). Mesma guarda de papel.
+    async definirAtivo(id, ativo, { papel } = {}) {
+      const params = [ativo ? 1 : 0, id];
+      if (papel) params.push(papel);
+      const [res] = await pool.query(
+        `UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1)
+          WHERE id = ?${papel ? ' AND papel = ?' : ''}`,
+        params
+      );
+      return res.affectedRows === 0 ? null : res.insertId;
+    },
+
+    // Contas de família para a área médica (sem hash). Devolve até `limite` e diz se havia mais.
+    async listarFamilias(limite = 500) {
+      const [rows] = await pool.query(
+        `SELECT id, login, nome, contato, ativo, precisa_trocar_senha, ultimo_acesso_em, criado_em
+           FROM usuarios WHERE papel = 'familia' ORDER BY nome, id LIMIT ?`,
+        [limite + 1]
+      );
+      return {
+        truncada: rows.length > limite,
+        itens: rows.slice(0, limite).map((r) => ({
+          id: r.id,
+          login: r.login,
+          nome: r.nome,
+          contato: r.contato,
+          ativo: Boolean(r.ativo),
+          precisaTrocarSenha: Boolean(r.precisa_trocar_senha),
+          ultimoAcessoEm: r.ultimo_acesso_em,
+          criadoEm: r.criado_em,
+        })),
+      };
     },
 
     async registrarAcesso(id) {

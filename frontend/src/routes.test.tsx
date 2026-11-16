@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { routes } from './routes'
-import { GUIA_TESTE, USUARIO_FAMILIA, mockFetch } from './testUtils'
+import { GUIA_TESTE, USUARIO_FAMILIA, USUARIO_MEDICA, mockFetch } from './testUtils'
 
 function abrir(caminho: string) {
   const router = createMemoryRouter(routes, { initialEntries: [caminho] })
@@ -86,5 +86,54 @@ describe('áreas restritas', () => {
     await screen.findByRole('heading', { level: 1 })
     expect(screen.getAllByRole('navigation', { name: 'Principal' })).toHaveLength(1)
     expect(screen.getAllByRole('link', { name: 'Área da família' })).toHaveLength(2)
+  })
+})
+
+describe('área médica (/painel)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('/painel sem sessão vai para /painel/entrar (título "Área médica")', async () => {
+    mockFetch({ 'GET /api/auth/me': { status: 401, body: {} } })
+    const router = abrir('/painel')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/painel/entrar'))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Área médica' })).toBeInTheDocument()
+  })
+
+  it('família logada em /painel vê "Acesso restrito" e NÃO dispara chamadas do painel', async () => {
+    const { chamadas } = mockFetch({ 'GET /api/auth/me': { body: USUARIO_FAMILIA } })
+    abrir('/painel')
+    expect(await screen.findByRole('heading', { name: 'Acesso restrito' })).toBeInTheDocument()
+    expect(chamadas.some((c) => c.chave.includes('/api/painel'))).toBe(false)
+  })
+
+  it('médica logada vê o painel com as abas e a lista de famílias', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: USUARIO_MEDICA },
+      'GET /api/painel/familias': { body: { itens: [], truncada: false } },
+    })
+    abrir('/painel')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Área médica' })).toBeInTheDocument()
+    const abas = screen.getByRole('navigation', { name: 'Seções da área médica' })
+    expect(abas).toHaveTextContent('Famílias')
+    expect(abas).toHaveTextContent('Valor da consulta')
+    expect(await screen.findByRole('heading', { level: 2, name: 'Famílias' })).toBeInTheDocument()
+  })
+
+  it('/painel/valor mostra a edição do valor da consulta', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: USUARIO_MEDICA },
+      'GET /api/painel/config': { body: { valorConsulta: 450 } },
+    })
+    abrir('/painel/valor')
+    expect(await screen.findByRole('heading', { level: 2, name: 'Valor da consulta' })).toBeInTheDocument()
+  })
+
+  it('a médica também entra na área da família (hierarquia)', async () => {
+    mockFetch({
+      'GET /api/auth/me': { body: USUARIO_MEDICA },
+      'GET /api/familia/guia': { body: { guia: GUIA_TESTE, valorConsulta: 450 } },
+    })
+    abrir('/familia')
+    expect(await screen.findByRole('heading', { level: 1, name: 'Guia da consulta com a Dra. Raquel' })).toBeInTheDocument()
   })
 })

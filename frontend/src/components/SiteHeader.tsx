@@ -84,6 +84,15 @@ export default function SiteHeader() {
               Área da família
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/painel"
+              className={({ isActive }) => `${styles.link} ${isActive ? styles.linkAtivo : ''}`}
+              onClick={fechar}
+            >
+              Área médica
+            </NavLink>
+          </li>
         </ul>
 
         <div className={styles.agendar} ref={agendarRef}>

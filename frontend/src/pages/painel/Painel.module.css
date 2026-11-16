@@ -1,0 +1,497 @@
+/* Área médica. Painel claro e calmo: cartões brancos sobre o creme do site, ações óbvias, toque ≥ 44px.
+   O cartão de credenciais é o único elemento escuro (ameixa) — a senha temporária é a coisa mais importante da tela.
+   Identidade do site (tokens em src/styles/tokens.css). */
+
+.pagina {
+  min-height: 100vh;
+  padding: 112px 24px 96px;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 60% 40% at 0% 0%, rgba(214, 51, 132, 0.09), transparent 60%),
+    linear-gradient(180deg, var(--rose-50) 0%, var(--cream) 320px);
+}
+
+.conteudo {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.topo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.titulo {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--plum-900);
+}
+
+.abas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  padding: 6px;
+  width: fit-content;
+  border-radius: 50px;
+  background: #fff;
+  border: 1px solid rgba(214, 51, 132, 0.14);
+}
+
+.aba {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.aba:hover {
+  background: var(--rose-100);
+}
+
+.abaAtiva {
+  background: linear-gradient(135deg, #d63384, #b8296f);
+  color: #fff;
+}
+
+.abaAtiva:hover {
+  background: linear-gradient(135deg, #d63384, #b8296f);
+}
+
+.secaoTopo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.secaoTitulo {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--plum-900);
+}
+
+.explica {
+  max-width: 62ch;
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+/* ── botões ─────────────────────────────────────────── */
+
+.botaoPrimario,
+.botaoClaro,
+.botaoTexto,
+.botaoPerigo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 50px;
+  border: 1.5px solid transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.25s, background 0.2s, opacity 0.2s;
+}
+
+.botaoPrimario {
+  background: linear-gradient(135deg, #d63384, #b8296f);
+  color: #fff;
+  box-shadow: 0 8px 18px -10px rgba(214, 51, 132, 0.7);
+}
+
+.botaoPrimario:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px -10px rgba(214, 51, 132, 0.8);
+}
+
+.botaoClaro {
+  background: #fff;
+  border-color: var(--rose-200);
+  color: var(--rose-700);
+}
+
+.botaoClaro:hover:not(:disabled) {
+  background: var(--rose-50);
+  border-color: var(--rose-300);
+}
+
+.botaoTexto {
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.botaoTexto:hover:not(:disabled) {
+  background: var(--rose-100);
+  color: var(--rose-700);
+}
+
+.botaoPerigo {
+  background: var(--plum-900);
+  color: #fff;
+}
+
+.botaoPerigo:hover:not(:disabled) {
+  background: #3f1d35;
+}
+
+.botaoPrimario:disabled,
+.botaoClaro:disabled,
+.botaoTexto:disabled,
+.botaoPerigo:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.botaoPrimario:focus-visible,
+.botaoClaro:focus-visible,
+.botaoTexto:focus-visible,
+.botaoPerigo:focus-visible,
+.aba:focus-visible {
+  outline: 2px solid var(--rose-500);
+  outline-offset: 3px;
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+/* ── formulários ────────────────────────────────────── */
+
+.formNovo {
+  display: grid;
+  gap: 18px;
+  max-width: 520px;
+  margin-bottom: 28px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #fff;
+  border: 1px solid rgba(214, 51, 132, 0.14);
+  box-shadow: 0 22px 40px -32px rgba(143, 30, 86, 0.4);
+}
+
+.campo {
+  display: grid;
+  gap: 8px;
+}
+
+.rotulo {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.entrada {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1.5px solid var(--rose-200);
+  border-radius: 14px;
+  background: var(--rose-50);
+  font: inherit;
+  font-size: 16px;
+  color: var(--ink);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.entrada:focus {
+  outline: none;
+  border-color: var(--rose-500);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(214, 51, 132, 0.14);
+}
+
+.dica {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+
+.erro {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--rose-100);
+  border: 1px solid var(--rose-200);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rose-700);
+}
+
+.sucesso {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--gold) 16%, #fff);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, #fff);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold-700);
+}
+
+.estado,
+.vazio {
+  margin: 24px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.valorAtual {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 24px;
+}
+
+.valorGrande {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 44px;
+  letter-spacing: -0.03em;
+  color: var(--rose-600);
+}
+
+/* ── lista de famílias ──────────────────────────────── */
+
+.lista {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cartao {
+  padding: 20px 22px;
+  border-radius: 22px;
+  background: #fff;
+  border: 1px solid rgba(214, 51, 132, 0.12);
+  box-shadow: 0 18px 34px -30px rgba(143, 30, 86, 0.45);
+}
+
+.inativo {
+  background: #fbf6f3;
+  border-style: dashed;
+}
+
+.cartaoTopo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nomeFamilia {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--plum-900);
+}
+
+.meta {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-mute);
+}
+
+.mono {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.selaAtiva,
+.selaAguarda,
+.selaInativa {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.selaAtiva { background: var(--rose-100); color: var(--rose-700); }
+.selaAguarda { background: color-mix(in srgb, var(--gold) 20%, #fff); color: var(--gold-700); }
+.selaInativa { background: #ece6e3; color: var(--ink-mute); }
+
+.confirmacao {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--rose-50);
+  border: 1px solid var(--rose-200);
+}
+
+.confirmacao p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+}
+
+/* ── cartão de credenciais (a senha temporária) ─────── */
+
+.credenciais {
+  margin-bottom: 28px;
+  padding: 28px;
+  border-radius: 28px;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 60% 120% at 100% 0%, rgba(214, 51, 132, 0.42), transparent 60%),
+    var(--plum-900);
+  box-shadow: 0 32px 56px -30px rgba(43, 20, 36, 0.75);
+}
+
+.credTitulo {
+  margin: 0 0 10px;
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+.credAviso {
+  max-width: 60ch;
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.credDados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 0 0 18px;
+}
+
+.credDados div {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.credDados dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rose-300);
+}
+
+.credDados dd {
+  margin: 6px 0 0;
+  font-size: 20px;
+  color: #fff;
+  word-break: break-all;
+}
+
+.credDados .mono {
+  color: #fff;
+}
+
+.credSenha {
+  font-size: 26px;
+  letter-spacing: 0.06em;
+}
+
+.credMensagem {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.22);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.credAcoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.credenciais .botaoTexto {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.credenciais .botaoTexto:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.credSemContato {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.credenciais .confirmacao {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.credenciais .confirmacao p {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 640px) {
+  .pagina { padding: 96px 16px 72px; }
+  .cartaoTopo { flex-direction: column; }
+  .abas { width: 100%; }
+  .aba { flex: 1; justify-content: center; padding: 0 12px; }
+  .credenciais { padding: 22px 18px; border-radius: 24px; }
+  .credSenha { font-size: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botaoPrimario, .botaoClaro, .botaoTexto, .botaoPerigo, .aba, .entrada { transition: none; }
+}
