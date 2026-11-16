@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './Home.module.css'
+import { INSTAGRAM, WHATSAPP_CATIVA, WHATSAPP_FABRICA } from '../content/contatos'
 
-const WHATSAPP_CATIVA = 'https://wa.me/5584996770404'
-const WHATSAPP_FABRICA = 'https://wa.me/5584992215656'
-const INSTAGRAM = 'https://www.instagram.com/raquelmachado_ped/'
 
 const testimonials = [
   {
