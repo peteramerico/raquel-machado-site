@@ -59,3 +59,16 @@
 ### Task 5 — E2E local + produção
 - Local (MySQL no WSL + Chrome): admin entra e troca a senha → cria médica → médica entra em `/painel/entrar` (e é barrada em `/admin`) → admin tenta desativar a si mesmo (bloqueado) e, com 1 admin só, o "último admin" → cria 2º admin → desativa o 1º ok e o 2º barrado → mobile.
 - Produção: pré-voo (testes, compose config, build, boot check), merge, deploys, verificação **sem autenticar** (4 rotas novas → 401), smoke do bundle. Não mexo nas contas reais (`peter` e `raquel`): o 1º uso real é do Peter.
+
+
+---
+
+## Emendas após a revisão independente (valem sobre o texto acima)
+
+1. **Ordem dos locks (anti-deadlock):** `definirAtivoComTrava` trava **primeiro** o conjunto de admins ativos (`SELECT id … WHERE papel='admin' AND ativo=1 ORDER BY id FOR UPDATE`), depois o alvo, decide e só então faz o UPDATE. Erro `ER_LOCK_DEADLOCK` (1213) → **503** com mensagem de tentar de novo, nunca 500.
+2. **A trava é defesa em profundidade, inalcançável por HTTP em condições normais** (o ator precisa estar ativo e ser diferente do alvo ⇒ sempre sobra outro admin; só uma corrida a dispara). Portanto: **cobrir no repositório (repo falso + integração SQL com barreira de transação aberta)** e, na rota, só testar o **mapeamento** `ultimo_admin → 409` com um repo que devolve esse motivo. **Retirado** o passo "com 1 admin só" do E2E.
+3. **`definirAtivo` só muda quando o estado muda** (`UPDATE … AND ativo <> ?`): reativar conta já ativa (ou desativar já inativa) **não** incrementa `sessao_versao` nem desloga ninguém. Devolve `null` (não encontrada) ou `{ mudou, versao }`. Vale para `/painel` (corrige o Inc. 2) e `/admin`. No `/admin`, **qualquer PATCH no próprio usuário → 409**.
+4. **`CartaoCredenciais` generalizado por props** (com os defaults atuais de família): `urlEntrada`, `aviso`, `mensagem`, `semWhatsApp`. Equipe: URL do login da área do papel, aviso sem "família", mensagem própria, **sem** WhatsApp e **sem** o texto "Sem WhatsApp cadastrado". Redefinir uma **família** pela lista do admin mantém mensagem e WhatsApp de família.
+5. **Admin sobre admin sem reautenticação = risco aceito e documentado** (hierarquia: admin ⊇ tudo; a trava mantém ao menos um admin ativo). Mitigação futura: pedir a senha atual para ações em outro admin.
+6. **Deploy:** sem migration; rollback = `git revert`. A verificação sem autenticar (401, não 404) prova backend + rotas no ar. **Runbook de recuperação:** a CLI ganha `--reativar --login x` (além de `--redefinir`), para destravar conta desativada.
+7. **Menores:** lista `ORDER BY papel DESC, nome, id` (ENUM ordena pelo índice: familia < medica < admin); testes de integração do "único admin" limpam admins antes (banco compartilhado); login de equipe pode ser qualquer um que case com a regex (logins não viram rotas — `RESERVADOS` só vale para o gerador de famílias); `USUARIO_ADMIN` em `testUtils`; `robots.txt` passa a `Disallow: /admin` e `/painel` (sem barra); `AdminLayout` com link para a área médica; o limitador de geração do admin é **uma instância própria** reutilizando `limites.geracaoSenha` (cada `rateLimit` tem store próprio), montado depois de `sessao` e `exigirPapel`.
