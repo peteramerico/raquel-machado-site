@@ -26,6 +26,7 @@ export function mockFetch(rotas: Rotas) {
 export const USUARIO_FAMILIA = { nome: 'Ana Souza', login: 'ana', papel: 'familia', precisaTrocarSenha: false }
 
 export const USUARIO_MEDICA = { nome: 'Raquel Machado', login: 'raquel', papel: 'medica', precisaTrocarSenha: false }
+export const USUARIO_ADMIN = { nome: 'Peter Américo', login: 'peter', papel: 'admin', precisaTrocarSenha: false }
 export const USUARIO_PENDENTE = { nome: 'Ana Souza', login: 'ana', papel: 'familia', precisaTrocarSenha: true }
 
 // Fixture compacta com a MESMA estrutura do que a API devolve (o texto real mora em backend/src/conteudo).

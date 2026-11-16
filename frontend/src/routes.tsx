@@ -3,6 +3,8 @@ import AreaRestrita from './components/AreaRestrita'
 import Raiz from './components/Raiz'
 import RequerPapel from './components/RequerPapel'
 import RootLayout from './components/RootLayout'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminUsuarios from './pages/admin/AdminUsuarios'
 import Entrar from './pages/Entrar'
 import Familia from './pages/Familia'
 import Home from './pages/Home'
@@ -41,6 +43,16 @@ export const routes: RouteObject[] = [
                       { path: '/painel', element: <PainelFamilias /> },
                       { path: '/painel/valor', element: <PainelValor /> },
                     ],
+                  },
+                ],
+              },
+              { path: '/admin/entrar', element: <Entrar area="admin" /> },
+              {
+                element: <RequerPapel area="admin" />,
+                children: [
+                  {
+                    element: <AdminLayout />,
+                    children: [{ path: '/admin', element: <AdminUsuarios /> }],
                   },
                 ],
               },

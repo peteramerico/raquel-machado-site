@@ -62,3 +62,14 @@ export interface Credenciais {
   senhaTemporaria: string
   contato: string | null
 }
+
+// Administrador (/api/admin)
+export interface UsuarioItem extends FamiliaItem {
+  papel: Papel
+  voce: boolean
+}
+
+export interface ListaUsuarios {
+  itens: UsuarioItem[]
+  truncada: boolean
+}

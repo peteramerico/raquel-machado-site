@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /dist/
-Disallow: /admin/
-Disallow: /painel/
+Disallow: /admin
+Disallow: /painel
 
 Sitemap: https://raquelmachadoped.com.br/sitemap.xml

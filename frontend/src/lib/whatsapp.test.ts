@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { linkWhatsApp, mensagemAcesso } from './whatsapp'
+import { linkWhatsApp, mensagemAcesso, mensagemAcessoEquipe } from './whatsapp'
 
 const dados = { nome: 'Maria Souza', login: 'maria', senha: 'k7m2p9x4q8hn', url: 'https://raquelmachadoped.com.br/familia/entrar' }
 
@@ -24,5 +24,16 @@ describe('linkWhatsApp', () => {
   })
   it('sem contato: não há link', () => {
     expect(linkWhatsApp(null, 'x')).toBeNull()
+  })
+})
+
+describe('mensagemAcessoEquipe', () => {
+  it('traz a área, o endereço, usuário e senha, sem falar em "família"', () => {
+    const m = mensagemAcessoEquipe({ nome: 'Dra. Maria', login: 'dra.maria', senha: 'k7m2p9x4q8hn', url: 'https://x.com/painel/entrar', area: 'Área médica' })
+    expect(m).toContain('Seu acesso à Área médica')
+    expect(m).toContain('Endereço: https://x.com/painel/entrar')
+    expect(m).toContain('Usuário: dra.maria')
+    expect(m).toContain('Senha temporária: k7m2p9x4q8hn')
+    expect(m).not.toMatch(/família/i)
   })
 })
