@@ -65,7 +65,7 @@ function rotasPainel({ repo, config, sessao, senhas, limites }) {
           const id = await repo.criarUsuario({
             login, nome: nomeLimpo, papel: 'familia', senhaHash, contato: c.valor, criadoPor: req.usuario.id, precisaTrocarSenha: true,
           });
-          return res.status(201).json({ id, login, nome: nomeLimpo, senhaTemporaria: temporaria });
+          return res.status(201).json({ id, login, nome: nomeLimpo, contato: c.valor, senhaTemporaria: temporaria });
         } catch (err) {
           if (err.codigo !== 'LOGIN_DUPLICADO') throw err;
           colididos.add(login);

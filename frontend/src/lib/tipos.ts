@@ -37,3 +37,28 @@ export interface RespostaGuia {
   guia: Guia
   valorConsulta: number
 }
+
+// Área médica (/api/painel)
+export interface FamiliaItem {
+  id: number
+  login: string
+  nome: string
+  contato: string | null
+  ativo: boolean
+  precisaTrocarSenha: boolean
+  ultimoAcessoEm: string | null
+  criadoEm: string
+}
+
+export interface ListaFamilias {
+  itens: FamiliaItem[]
+  truncada: boolean
+}
+
+// Credenciais mostradas UMA vez (criar acesso / nova senha). A senha temporária não é guardada em lugar nenhum.
+export interface Credenciais {
+  nome: string
+  login: string
+  senhaTemporaria: string
+  contato: string | null
+}
