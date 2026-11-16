@@ -1,73 +1,36 @@
-# React + TypeScript + Vite
+# raquel-machado-site
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Site da Dra. Raquel Machado (pediatra e neonatologista) — https://raquelmachadoped.com.br
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+frontend/   React 19 + Vite + TypeScript + React Router 7 + CSS Modules · testes: Vitest
+backend/    Express + MySQL 2 em Docker · migrations versionadas · testes: Jest + supertest
+docs/superpowers/{specs,plans}   design e planos de cada entrega
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Desenvolvimento
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd frontend && npm ci && npm run dev      # http://localhost:5173
+cd frontend && npm test                   # Vitest
+cd backend  && npm ci && npm test         # Jest
 ```
+
+O backend sobe em Docker (`backend/docker-compose.yml`: MySQL + API em `127.0.0.1:3337`); as migrations de
+`backend/migrations/NNN_nome.sql` rodam no boot do container (`src/seed.js`) e ficam registradas em `schema_migracoes`.
+Migrations devem ser idempotentes e nunca editadas depois de aplicadas em produção.
+
+## Deploy
+
+Push no `master` publica em produção por **dois caminhos equivalentes** (mantê-los em sincronia):
+
+1. `.github/workflows/deploy.yml` — testes, build, `rsync` do frontend e do backend, `docker compose up -d --build`.
+2. Cron `*/2` na VPS (`/var/www/deploy/auto-deploy/`, hook `/opt/deploy-scripts/deploy-raquel-site.sh`).
+
+O nginx **não** é gerado por deploy: a config fica na VPS (`/etc/nginx/sites-available/raquelmachadoped`).
+
+## Áreas do site
+
+- `/` landing, `/links`, `/privacidade` — públicas.
+- `/familia` — guia da consulta (hoje sem login; vira "Área da família" com login na próxima fase).
+- Planejadas: Área médica e Administrador (ver `docs/superpowers/`).

@@ -1,14 +1,15 @@
 name: Deploy
 
+# Mesmo padrão do primeiro-colo-site. O nginx NÃO é gerado por este workflow: a config vive na VPS
+# (/etc/nginx/sites-available/raquelmachadoped) e é editada à mão, com backup.
 on:
   push:
     branches: [master]
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -16,167 +17,59 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: '20'
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-      - name: Build frontend
+      - name: Testes e build do frontend
         working-directory: frontend
         run: npm ci && npm test && npm run build
 
-      - name: Build admin
-        working-directory: admin
-        run: npm ci && npm run build
+      - name: rsync do frontend para a VPS
+        uses: burnett01/rsync-deployments@796cf0d5e4b535745ce49d7429f77cf39e25ef39 # 7.0.1
+        with:
+          switches: -avzr --delete
+          path: frontend/dist/
+          remote_path: /var/www/raquel-frontend/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Configure server via SSH
+  backend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Testes do backend
+        working-directory: backend
+        run: npm ci && npm test
+
+      - name: rsync do backend para a VPS
+        uses: burnett01/rsync-deployments@796cf0d5e4b535745ce49d7429f77cf39e25ef39 # 7.0.1
+        with:
+          switches: -avzr --delete --exclude=node_modules --exclude=.env --exclude=uploads
+          path: backend/
+          remote_path: /opt/raquel-backend/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_port: ${{ secrets.SSH_PORT }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: rebuild e reiniciar os containers
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            mkdir -p /var/www/raquel-frontend
-            mkdir -p /var/www/raquel-admin
-            mkdir -p /opt/raquel-backend/uploads
-
-            # Nginx config
-            cat > /etc/nginx/sites-available/raquelmachadoped << 'NGINXEOF'
-            server_tokens off;
-
-            server {
-                listen 80;
-                server_name raquelmachadoped.com.br www.raquelmachadoped.com.br;
-                return 301 https://$host$request_uri;
-            }
-
-            server {
-                listen 443 ssl;
-                server_name raquelmachadoped.com.br www.raquelmachadoped.com.br;
-
-                ssl_certificate /etc/letsencrypt/live/raquelmachadoped.com.br/fullchain.pem;
-                ssl_certificate_key /etc/letsencrypt/live/raquelmachadoped.com.br/privkey.pem;
-
-                ssl_protocols TLSv1.2 TLSv1.3;
-                ssl_ciphers HIGH:!aNULL:!MD5;
-                ssl_prefer_server_ciphers on;
-                ssl_session_cache shared:SSL:10m;
-                ssl_session_timeout 10m;
-
-                add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-                add_header X-Frame-Options "DENY" always;
-                add_header X-Content-Type-Options "nosniff" always;
-                add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-                add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
-                add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://analytics.raquelmachadoped.com.br; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self' https://analytics.raquelmachadoped.com.br; frame-src https://www.youtube.com https://www.instagram.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';" always;
-
-                location /blog {
-                    proxy_pass http://127.0.0.1:3001;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                }
-
-                location /api {
-                    proxy_pass http://127.0.0.1:3001;
-                    proxy_set_header Host $host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                }
-
-                location /uploads {
-                    proxy_pass http://127.0.0.1:3001;
-                    proxy_set_header Host $host;
-                }
-
-                location /admin {
-                    alias /var/www/raquel-admin/;
-                    index index.html;
-                    try_files $uri $uri/ /admin/index.html;
-                }
-
-                location / {
-                    root /var/www/raquel-frontend;
-                    index index.html;
-                    try_files $uri $uri/ /index.html;
-                }
-            }
-            NGINXEOF
-
-            ln -sf /etc/nginx/sites-available/raquelmachadoped /etc/nginx/sites-enabled/raquelmachadoped
-            rm -f /etc/nginx/sites-enabled/default
-            nginx -t && systemctl reload nginx
-
-      - name: Deploy frontend
-        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "frontend/dist/*"
-          target: "/var/www/raquel-frontend"
-          strip_components: 2
-
-      - name: Deploy admin
-        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "admin/dist/*"
-          target: "/var/www/raquel-admin"
-          strip_components: 2
-
-      - name: Deploy backend
-        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "backend/*"
-          target: "/opt/raquel-backend"
-          strip_components: 1
-
-      - name: Start backend on VPS
-        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /opt/raquel-backend
-            npm install --omit=dev
-
-            # Garante que o .env existe
-            if [ ! -f .env ]; then
-              cp .env.example .env
-              echo "ATENÇÃO: configure o .env em /opt/raquel-backend/.env"
-            fi
-
-            # MySQL Docker
-            if ! docker ps | grep -q raquel-mysql; then
-              docker compose up -d mysql
-            fi
-
-            # Systemd service
-            cat > /etc/systemd/system/raquel-backend.service << 'SVCEOF'
-            [Unit]
-            Description=Raquel Machado Backend
-            After=network.target
-
-            [Service]
-            Type=simple
-            User=root
-            WorkingDirectory=/opt/raquel-backend
-            ExecStart=/usr/bin/node src/server.js
-            Restart=always
-            RestartSec=5
-            EnvironmentFile=/opt/raquel-backend/.env
-
-            [Install]
-            WantedBy=multi-user.target
-            SVCEOF
-
-            systemctl daemon-reload
-            systemctl enable raquel-backend
-            systemctl restart raquel-backend
+          # flock: o cron da VPS também faz compose up; um de cada vez
+          script: cd /opt/raquel-backend && flock -w 600 /var/lock/raquel-compose.lock docker compose up -d --build
