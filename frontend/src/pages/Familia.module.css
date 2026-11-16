@@ -60,6 +60,12 @@
   align-items: center;
 }
 
+/* min-width:0 — sem isso a lista de chips (nowrap) alarga a coluna do grid no mobile */
+.heroTexto,
+.heroFoto {
+  min-width: 0;
+}
+
 .heroTexto > * {
   animation: subir 0.9s var(--ease-site) both;
 }
@@ -480,6 +486,9 @@
 }
 
 .semanaNum {
+  display: inline-block;
+  /* folga para o "ª" itálico e a base do 8 não serem cortados pelo background-clip */
+  padding: 0.04em 0.16em 0.1em 0.02em;
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
@@ -732,6 +741,7 @@
     margin-inline: -24px;
     padding: 4px 24px 12px;
     scroll-snap-type: x proximity;
+    scroll-padding-inline: 24px;
     scrollbar-width: none;
   }
   .indice::-webkit-scrollbar { display: none; }

@@ -20,7 +20,7 @@ jobs:
 
       - name: Build frontend
         working-directory: frontend
-        run: npm ci && npm run build
+        run: npm ci && npm test && npm run build
 
       - name: Build admin
         working-directory: admin
