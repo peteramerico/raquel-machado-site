@@ -94,10 +94,11 @@ descrever('repositório (MySQL real)', () => {
 
   it('definirAtivo derruba a sessão (versão +1) e respeita a guarda de papel', async () => {
     const { id, sessaoVersao } = await repo.buscarUsuarioPorLogin('bia');
-    const v = await repo.definirAtivo(id, false, { papel: 'familia' });
-    expect(v).toBe(sessaoVersao + 1);
+    expect(await repo.definirAtivo(id, false, { papel: 'familia' })).toEqual({ mudou: true, versao: sessaoVersao + 1 });
     expect((await repo.buscarUsuarioPorId(id)).ativo).toBe(false);
-    expect(await repo.definirAtivo(id, true, { papel: 'familia' })).toBe(sessaoVersao + 2);
+    expect(await repo.definirAtivo(id, false, { papel: 'familia' })).toEqual({ mudou: false, versao: sessaoVersao + 1 }); // sem mudança: versão intacta
+    expect(await repo.definirAtivo(id, true, { papel: 'familia' })).toEqual({ mudou: true, versao: sessaoVersao + 2 });
+    expect(await repo.definirAtivo(id, true, { papel: 'familia' })).toEqual({ mudou: false, versao: sessaoVersao + 2 });
     // papel errado: nenhuma linha casa → null e NADA muda
     const dra = await repo.buscarUsuarioPorLogin('dra');
     expect(await repo.definirAtivo(dra.id, false, { papel: 'familia' })).toBeNull();
@@ -117,6 +118,73 @@ descrever('repositório (MySQL real)', () => {
     const ana = await repo.buscarUsuarioPorLogin('ana');
     const id = await repo.criarUsuario({ login: 'carla', nome: 'Carla', papel: 'familia', senhaHash: 'h', criadoPor: ana.id });
     expect((await repo.buscarUsuarioPorId(id)).criadoPor).toBe(ana.id);
+  });
+
+  it('listarUsuarios: todos os papéis, admin → médica → família, sem hash', async () => {
+    await pool.query("DELETE FROM usuarios WHERE papel IN ('admin','medica')");
+    await repo.criarUsuario({ login: 'adm1', nome: 'Zélia Admin', papel: 'admin', senhaHash: 'h' });
+    await repo.criarUsuario({ login: 'med1', nome: 'Ana Médica', papel: 'medica', senhaHash: 'h' });
+    const { itens, truncada } = await repo.listarUsuarios();
+    expect(truncada).toBe(false);
+    const papeis = itens.map((i) => i.papel);
+    expect(papeis[0]).toBe('admin');
+    expect(papeis.indexOf('medica')).toBeLessThan(papeis.indexOf('familia'));
+    expect(papeis.lastIndexOf('admin')).toBeLessThan(papeis.indexOf('medica'));
+    expect(Object.keys(itens[0]).sort()).toEqual(['ativo', 'contato', 'criadoEm', 'id', 'login', 'nome', 'papel', 'precisaTrocarSenha', 'ultimoAcessoEm']);
+    expect((await repo.listarUsuarios(2)).truncada).toBe(true);
+  });
+
+  it('trava do último admin (SQL real): único admin não desativa; com dois, um sai e o outro fica; inativo não conta', async () => {
+    await pool.query("DELETE FROM usuarios WHERE papel = 'admin'");
+    const a = await repo.criarUsuario({ login: 'trava_a', nome: 'A', papel: 'admin', senhaHash: 'h' });
+    expect(await repo.definirAtivoComTrava(a, false)).toEqual({ ok: false, motivo: 'ultimo_admin' });
+    expect((await repo.buscarUsuarioPorId(a)).ativo).toBe(true);
+
+    const b = await repo.criarUsuario({ login: 'trava_b', nome: 'B', papel: 'admin', senhaHash: 'h' });
+    const antes = (await repo.buscarUsuarioPorId(a)).sessaoVersao;
+    expect(await repo.definirAtivoComTrava(a, false)).toEqual({ ok: true, mudou: true, versao: antes + 1 });
+    expect(await repo.definirAtivoComTrava(b, false)).toEqual({ ok: false, motivo: 'ultimo_admin' });
+    expect(await repo.definirAtivoComTrava(a, false)).toEqual({ ok: true, mudou: false }); // já inativo: nada a travar
+    expect(await repo.definirAtivoComTrava(a, true)).toMatchObject({ ok: true, mudou: true });
+    expect(await repo.definirAtivoComTrava(99999, false)).toEqual({ ok: false, motivo: 'nao_encontrada' });
+    // não-admin não sofre a trava
+    const fam = await repo.criarUsuario({ login: 'trava_f', nome: 'F', papel: 'familia', senhaHash: 'h' });
+    expect(await repo.definirAtivoComTrava(fam, false)).toMatchObject({ ok: true, mudou: true });
+  });
+
+  it('trava sob CONCORRÊNCIA: uma transação segura o conjunto de admins; a desativação concorrente espera e re-lê', async () => {
+    await pool.query("DELETE FROM usuarios WHERE papel = 'admin'");
+    const a = await repo.criarUsuario({ login: 'conc_a', nome: 'A', papel: 'admin', senhaHash: 'h' });
+    const b = await repo.criarUsuario({ login: 'conc_b', nome: 'B', papel: 'admin', senhaHash: 'h' });
+
+    const barreira = await pool.getConnection();
+    try {
+      await barreira.beginTransaction();
+      await barreira.query("SELECT id FROM usuarios WHERE papel = 'admin' AND ativo = 1 ORDER BY id FOR UPDATE"); // segura os dois admins
+
+      let resolvida = false;
+      const pendente = repo.definirAtivoComTrava(a, false).then((r) => { resolvida = true; return r; });
+      await new Promise((r) => setTimeout(r, 400));
+      expect(resolvida).toBe(false); // está BLOQUEADA esperando a barreira (serialização real)
+
+      await barreira.query('UPDATE usuarios SET ativo = 0 WHERE id = ?', [b]); // "o outro" desativa B primeiro
+      await barreira.commit();
+
+      // ao liberar, a desativação pendente re-lê (leitura com lock): só A restou ativo → recusa
+      expect(await pendente).toEqual({ ok: false, motivo: 'ultimo_admin' });
+      expect((await repo.buscarUsuarioPorId(a)).ativo).toBe(true);
+    } finally {
+      barreira.release();
+    }
+  });
+
+  it('definirAtivo (sem trava): só incrementa a versão quando o estado muda; não-encontrada/papel errado → null', async () => {
+    const id = await repo.criarUsuario({ login: 'sem_mudanca', nome: 'S', papel: 'familia', senhaHash: 'h' });
+    const v0 = (await repo.buscarUsuarioPorId(id)).sessaoVersao;
+    expect(await repo.definirAtivo(id, true, { papel: 'familia' })).toEqual({ mudou: false, versao: v0 });
+    expect((await repo.buscarUsuarioPorId(id)).sessaoVersao).toBe(v0);
+    expect(await repo.definirAtivo(id, true, { papel: 'medica' })).toBeNull();
+    expect(await repo.definirAtivo(99999, true)).toBeNull();
   });
 
   it('o runner é idempotente: rodar de novo não aplica nada e não mexe nos dados', async () => {

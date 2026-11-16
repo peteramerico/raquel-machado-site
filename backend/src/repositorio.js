@@ -61,16 +61,82 @@ function criarRepositorio(pool) {
       return res.affectedRows === 0 ? null : res.insertId;
     },
 
-    // Ativa/desativa e INCREMENTA sessao_versao (desativar derruba a sessão na hora). Mesma guarda de papel.
+    // Ativa/desativa. SÓ muda (e só então incrementa sessao_versao, derrubando a sessão) se o estado realmente
+    // mudar: reativar conta já ativa não desloga ninguém. Com { papel }, a guarda vive no UPDATE.
+    // Devolve null (não encontrada / outro papel) ou { mudou, versao }.
     async definirAtivo(id, ativo, { papel } = {}) {
-      const params = [ativo ? 1 : 0, id];
-      if (papel) params.push(papel);
+      const alvo = ativo ? 1 : 0;
+      const filtro = [id];
+      if (papel) filtro.push(papel);
+      const base = `WHERE id = ?${papel ? ' AND papel = ?' : ''}`;
       const [res] = await pool.query(
-        `UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1)
-          WHERE id = ?${papel ? ' AND papel = ?' : ''}`,
-        params
+        `UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1) ${base} AND ativo <> ?`,
+        [alvo, ...filtro, alvo]
       );
-      return res.affectedRows === 0 ? null : res.insertId;
+      if (res.affectedRows === 1) return { mudou: true, versao: res.insertId };
+      const [rows] = await pool.query(`SELECT sessao_versao FROM usuarios ${base}`, filtro);
+      return rows[0] ? { mudou: false, versao: rows[0].sessao_versao } : null;
+    },
+
+    // Desativação para a área do administrador, com a TRAVA DO ÚLTIMO ADMIN (defesa em profundidade: por HTTP ela só
+    // dispara numa corrida). Tudo numa transação. ORDEM DOS LOCKS: primeiro o conjunto de admins ativos (por id), depois
+    // o alvo — assim duas desativações simultâneas se serializam em vez de dar deadlock.
+    // Devolve { ok:true, mudou, versao? } ou { ok:false, motivo:'nao_encontrada'|'ultimo_admin' }.
+    async definirAtivoComTrava(id, ativo) {
+      const conn = await pool.getConnection();
+      try {
+        await conn.beginTransaction();
+        const [admins] = await conn.query("SELECT id FROM usuarios WHERE papel = 'admin' AND ativo = 1 ORDER BY id FOR UPDATE");
+        const [alvos] = await conn.query('SELECT id, papel, ativo FROM usuarios WHERE id = ? FOR UPDATE', [id]);
+        const alvo = alvos[0];
+        if (!alvo) {
+          await conn.rollback();
+          return { ok: false, motivo: 'nao_encontrada' };
+        }
+        if (!ativo && alvo.papel === 'admin' && alvo.ativo && admins.length <= 1) {
+          await conn.rollback();
+          return { ok: false, motivo: 'ultimo_admin' };
+        }
+        if (Boolean(alvo.ativo) === ativo) {
+          await conn.rollback();
+          return { ok: true, mudou: false };
+        }
+        const [res] = await conn.query(
+          'UPDATE usuarios SET ativo = ?, sessao_versao = LAST_INSERT_ID(sessao_versao + 1) WHERE id = ?',
+          [ativo ? 1 : 0, id]
+        );
+        await conn.commit();
+        return { ok: true, mudou: true, versao: res.insertId };
+      } catch (err) {
+        try { await conn.rollback(); } catch { /* conexão já caiu */ }
+        throw err;
+      } finally {
+        conn.release();
+      }
+    },
+
+    // Todas as contas para o administrador (sem hash): admin, médica, família; depois por nome.
+    // (ENUM ordena pelo índice: familia < medica < admin, então DESC.)
+    async listarUsuarios(limite = 500) {
+      const [rows] = await pool.query(
+        `SELECT id, login, nome, papel, contato, ativo, precisa_trocar_senha, ultimo_acesso_em, criado_em
+           FROM usuarios ORDER BY papel DESC, nome, id LIMIT ?`,
+        [limite + 1]
+      );
+      return {
+        truncada: rows.length > limite,
+        itens: rows.slice(0, limite).map((r) => ({
+          id: r.id,
+          login: r.login,
+          nome: r.nome,
+          papel: r.papel,
+          contato: r.contato,
+          ativo: Boolean(r.ativo),
+          precisaTrocarSenha: Boolean(r.precisa_trocar_senha),
+          ultimoAcessoEm: r.ultimo_acesso_em,
+          criadoEm: r.criado_em,
+        })),
+      };
     },
 
     // Contas de família para a área médica (sem hash). Devolve até `limite` e diz se havia mais.

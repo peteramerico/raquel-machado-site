@@ -10,6 +10,7 @@ const { origem } = require('./middleware/origem');
 const { rotasAuth } = require('./rotas/auth');
 const { rotasFamilia } = require('./rotas/familia');
 const { rotasPainel } = require('./rotas/painel');
+const { rotasAdmin } = require('./rotas/admin');
 
 const MIN15 = 15 * 60 * 1000;
 const LIMITES_PADRAO = {
@@ -42,8 +43,7 @@ function criarApp({ repo, config = carregar(), limites = {} } = {}) {
   app.use('/api/auth', rotasAuth({ repo, config, sessao, senhas, limites: lim }));
   app.use('/api/familia', rotasFamilia({ repo, config, sessao }));
   app.use('/api/painel', rotasPainel({ repo, config, sessao, senhas, limites: lim }));
-
-  // Incremento 3 acrescenta /api/admin.
+  app.use('/api/admin', rotasAdmin({ repo, config, sessao, senhas, limites: lim }));
 
   app.use('/api', (req, res) => res.status(404).json({ erro: 'Não encontrado.' }));
 
