@@ -21,25 +21,52 @@ function criarRepoFalso() {
         throw Object.assign(new Error('login duplicado'), { codigo: 'LOGIN_DUPLICADO' });
       }
       const id = seq++;
-      usuarios.push({ id, login, nome, papel, senhaHash, contato, criadoPor, precisaTrocarSenha, ativo: true, sessaoVersao: 1, acessos: 0 });
+      usuarios.push({ id, login, nome, papel, senhaHash, contato, criadoPor, precisaTrocarSenha, ativo: true, sessaoVersao: 1, acessos: 0, criadoEm: new Date(), ultimoAcessoEm: null });
       return id;
     },
-    // Troca a senha e INCREMENTA a versão da sessão (derruba as sessões antigas). Devolve a nova versão.
-    async atualizarSenha(id, senhaHash, precisaTrocarSenha) {
-      const u = usuarios.find((x) => x.id === id);
+    // Troca a senha e INCREMENTA a versão da sessão (derruba as sessões antigas). Devolve a nova versão,
+    // ou null se a conta não existe / não tem o `papel` pedido (mesma semântica do SQL real).
+    async atualizarSenha(id, senhaHash, precisaTrocarSenha, { papel } = {}) {
+      const u = usuarios.find((x) => x.id === id && (!papel || x.papel === papel));
+      if (!u) return null;
       u.senhaHash = senhaHash;
       u.precisaTrocarSenha = precisaTrocarSenha;
       u.sessaoVersao += 1;
       return u.sessaoVersao;
     },
+    async definirAtivo(id, ativo, { papel } = {}) {
+      const u = usuarios.find((x) => x.id === id && (!papel || x.papel === papel));
+      if (!u) return null;
+      u.ativo = ativo;
+      u.sessaoVersao += 1;
+      return u.sessaoVersao;
+    },
+    async listarFamilias(limite = 500) {
+      const todas = usuarios
+        .filter((u) => u.papel === 'familia')
+        .sort((a, b) => a.nome.localeCompare(b.nome) || a.id - b.id);
+      return {
+        truncada: todas.length > limite,
+        itens: todas.slice(0, limite).map((u) => ({
+          id: u.id, login: u.login, nome: u.nome, contato: u.contato, ativo: u.ativo,
+          precisaTrocarSenha: u.precisaTrocarSenha, ultimoAcessoEm: u.ultimoAcessoEm, criadoEm: u.criadoEm,
+        })),
+      };
+    },
     async registrarAcesso(id) {
-      usuarios.find((x) => x.id === id).acessos += 1;
+      const u = usuarios.find((x) => x.id === id);
+      u.acessos += 1;
+      u.ultimoAcessoEm = new Date();
     },
     async lerConfig(chave) {
       return config.has(chave) ? config.get(chave) : null;
     },
-    async gravarConfig(chave, valor) {
+    async gravarConfig(chave, valor, porId = null) {
       config.set(chave, String(valor));
+      config.set(`${chave}__por`, porId);
+    },
+    lerAtualizadoPor(chave) {
+      return config.get(`${chave}__por`) ?? null;
     },
   };
 }

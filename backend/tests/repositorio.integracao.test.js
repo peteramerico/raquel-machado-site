@@ -79,6 +79,46 @@ descrever('repositório (MySQL real)', () => {
     expect(await repo.lerConfig('outra')).toBe('x');
   });
 
+  it('listarFamilias: só papel familia, por nome, sem hash, com limite e aviso de truncamento', async () => {
+    await repo.criarUsuario({ login: 'zeca', nome: 'Zeca Lima', papel: 'familia', senhaHash: 'h' });
+    await repo.criarUsuario({ login: 'bia', nome: 'Bia Costa', papel: 'familia', senhaHash: 'h' });
+    await repo.criarUsuario({ login: 'dra', nome: 'Dra Teste', papel: 'medica', senhaHash: 'h' });
+    const { itens, truncada } = await repo.listarFamilias();
+    expect(itens.map((i) => i.login)).toEqual(['ana', 'bia', 'zeca']); // ordenado por nome; sem a médica
+    expect(truncada).toBe(false);
+    expect(Object.keys(itens[0]).sort()).toEqual(['ativo', 'contato', 'criadoEm', 'id', 'login', 'nome', 'precisaTrocarSenha', 'ultimoAcessoEm']);
+    const curta = await repo.listarFamilias(2);
+    expect(curta.itens).toHaveLength(2);
+    expect(curta.truncada).toBe(true);
+  });
+
+  it('definirAtivo derruba a sessão (versão +1) e respeita a guarda de papel', async () => {
+    const { id, sessaoVersao } = await repo.buscarUsuarioPorLogin('bia');
+    const v = await repo.definirAtivo(id, false, { papel: 'familia' });
+    expect(v).toBe(sessaoVersao + 1);
+    expect((await repo.buscarUsuarioPorId(id)).ativo).toBe(false);
+    expect(await repo.definirAtivo(id, true, { papel: 'familia' })).toBe(sessaoVersao + 2);
+    // papel errado: nenhuma linha casa → null e NADA muda
+    const dra = await repo.buscarUsuarioPorLogin('dra');
+    expect(await repo.definirAtivo(dra.id, false, { papel: 'familia' })).toBeNull();
+    expect((await repo.buscarUsuarioPorId(dra.id)).ativo).toBe(true);
+    expect(await repo.definirAtivo(99999, false, { papel: 'familia' })).toBeNull();
+  });
+
+  it('atualizarSenha com guarda de papel: não toca conta de outro papel', async () => {
+    const dra = await repo.buscarUsuarioPorLogin('dra');
+    expect(await repo.atualizarSenha(dra.id, 'hack', true, { papel: 'familia' })).toBeNull();
+    expect((await repo.buscarUsuarioPorId(dra.id)).senhaHash).toBe('h');
+    const bia = await repo.buscarUsuarioPorLogin('bia');
+    expect(await repo.atualizarSenha(bia.id, 'novo', true, { papel: 'familia' })).toBe(bia.sessaoVersao + 1);
+  });
+
+  it('criarUsuario guarda criado_por e buscarUsuario devolve criadoPor', async () => {
+    const ana = await repo.buscarUsuarioPorLogin('ana');
+    const id = await repo.criarUsuario({ login: 'carla', nome: 'Carla', papel: 'familia', senhaHash: 'h', criadoPor: ana.id });
+    expect((await repo.buscarUsuarioPorId(id)).criadoPor).toBe(ana.id);
+  });
+
   it('o runner é idempotente: rodar de novo não aplica nada e não mexe nos dados', async () => {
     const admin = mysql.createPool({
       host: process.env.TEST_DB_HOST, port: Number(process.env.TEST_DB_PORT || 3306),
