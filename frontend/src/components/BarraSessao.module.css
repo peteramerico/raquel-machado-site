@@ -1,0 +1,40 @@
+.barra {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 6px 6px 16px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(214, 51, 132, 0.16);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  backdrop-filter: blur(8px);
+}
+
+.ola {
+  white-space: nowrap;
+}
+
+.sair {
+  min-height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 50px;
+  background: var(--rose-100);
+  color: var(--rose-700);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sair:hover {
+  background: var(--rose-200);
+}
+
+.sair:focus-visible {
+  outline: 2px solid var(--rose-500);
+  outline-offset: 2px;
+}

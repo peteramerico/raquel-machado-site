@@ -1,12 +1,9 @@
-// Todo o texto do "Guia da consulta". Fica separado do layout de propósito: quando
-// existir login, este objeto sai do bundle (público) e passa a ser servido pela API.
-// O PREÇO não está aqui — vem de useValorConsulta() (src/lib/valorConsulta.ts).
+// Todo o texto do "Guia da consulta", servido só a quem está logado (GET /api/familia/guia).
+// Mora aqui, e não no bundle do frontend, porque o JS estático é público.
+// O PREÇO não está aqui — vem da tabela `configuracoes` (chave valor_consulta).
 
-export interface Capitulo { id: string; rotulo: string; titulo: string }
-export interface FaixaCalendario { idade: string; frequencia: string }
-export interface ItemChecklist { titulo: string; detalhe?: string }
 
-export const guia = {
+const guia = {
   titulo: 'Guia da consulta com a Dra. Raquel',
   subtitulo: 'Pediatra e neonatologista',
   abertura:
@@ -20,7 +17,7 @@ export const guia = {
     { id: 'trazer', rotulo: 'O que trazer', titulo: 'O que trazer para a consulta da criança' },
     { id: 'whatsapp', rotulo: 'WhatsApp', titulo: 'WhatsApp entre as consultas' },
     { id: 'valor', rotulo: 'Valor', titulo: 'Valor da consulta' },
-  ] satisfies Capitulo[],
+  ],
 
   puericultura: [
     'A puericultura é a consulta de acompanhamento da criança. Reservo cerca de uma hora para conversar com vocês, examinar seu filho e avaliar como ele está crescendo e se desenvolvendo. A gente conversa sobre alimentação, sono, vacinas e as dúvidas que surgem em cada fase. Ao final, combinamos os próximos passos e quando será a próxima avaliação.',
@@ -58,7 +55,7 @@ export const guia = {
       { idade: 'De 1 ano a 1 ano e meio', frequencia: 'A cada 3 meses' },
       { idade: 'De 1 ano e meio a 5 anos', frequencia: 'A cada 6 meses' },
       { idade: 'Dos 5 aos 18 anos', frequencia: 'Anual' },
-    ] satisfies FaixaCalendario[],
+    ],
     prematuro: {
       rotulo: 'Bebê prematuro',
       texto:
@@ -81,7 +78,7 @@ export const guia = {
       { titulo: 'Lista de medicamentos e suplementos em uso' },
       { titulo: 'Resumo da maternidade ou da internação', detalhe: 'na primeira consulta após a alta' },
       { titulo: 'Dúvidas anotadas', detalhe: 'se quiserem, anotem o que surgir em casa, para conversarmos com calma' },
-    ] satisfies ItemChecklist[],
+    ],
   },
 
   whatsapp: {
@@ -98,3 +95,5 @@ export const guia = {
 
   assinatura: { nome: 'Dra. Raquel Machado', titulo: 'Pediatra e neonatologista' },
 }
+
+module.exports = { guia };
