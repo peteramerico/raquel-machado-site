@@ -1,0 +1,289 @@
+/* Header compartilhado. Visual idêntico ao nav que vivia dentro da Home;
+   os tokens vêm de src/styles/tokens.css. */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 48px;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rolou {
+  background: rgba(255, 248, 243, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(42, 20, 36, 0.08);
+}
+
+.logo {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.nome {
+  font-family: 'Fraunces', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--plum-900);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.sub {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: var(--rose-600);
+}
+
+.linkFamilia {
+  color: var(--rose-600);
+  font-weight: 700;
+}
+
+.linkAtivo {
+  text-decoration: underline;
+  text-decoration-color: var(--rose-500);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 7px;
+}
+
+.agendar {
+  position: relative;
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 10px 18px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #d63384, #b8296f);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 16px -6px rgba(214, 51, 132, 0.5);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.cta:hover {
+  box-shadow: 0 8px 20px -6px rgba(214, 51, 132, 0.65);
+  transform: translateY(-1px);
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chevronAberto {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px -8px rgba(42, 20, 36, 0.18), 0 0 0 1px rgba(214, 51, 132, 0.1);
+  overflow: hidden;
+  min-width: 220px;
+  animation: dropIn 0.18s var(--ease-site) both;
+}
+
+.dropdown[hidden] {
+  display: none;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.dropdownItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 18px;
+  text-decoration: none;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(214, 51, 132, 0.07);
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItem:hover {
+  background: var(--rose-50);
+}
+
+.dropdownNome {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--plum-900);
+}
+
+.dropdownSub {
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+
+/* ── Hambúrguer (só no mobile) ─────────────────────── */
+
+.hamburguer {
+  display: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 12px;
+}
+
+.barra {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--plum-900);
+  transition: transform 0.28s var(--ease-site), opacity 0.2s;
+}
+
+.hamburguer[aria-expanded='true'] .barra:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburguer[aria-expanded='true'] .barra:nth-child(2) { opacity: 0; }
+.hamburguer[aria-expanded='true'] .barra:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── Foco visível ──────────────────────────────────── */
+
+.link:focus-visible,
+.cta:focus-visible,
+.hamburguer:focus-visible,
+.dropdownItem:focus-visible,
+.logo:focus-visible {
+  outline: 2px solid var(--rose-500);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ── Mobile ────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .header { padding: 8px 20px; }
+
+  .hamburguer { display: flex; }
+
+  .nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 24px 28px;
+    background: rgba(255, 248, 243, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 24px 40px -24px rgba(42, 20, 36, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.25s var(--ease-site), transform 0.25s var(--ease-site), visibility 0.25s;
+  }
+
+  .navAberto {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .link {
+    display: block;
+    padding: 16px 4px;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(214, 51, 132, 0.1);
+  }
+
+  .linkAtivo {
+    text-decoration: none;
+    box-shadow: inset 3px 0 0 var(--rose-500);
+    padding-left: 14px;
+  }
+
+  .agendar { margin-top: 18px; }
+
+  .cta {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 18px;
+    font-size: 13px;
+  }
+
+  .dropdown {
+    position: static;
+    margin-top: 10px;
+    box-shadow: 0 0 0 1px rgba(214, 51, 132, 0.14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header, .cta, .chevron, .barra, .nav, .dropdown { transition: none; animation: none; }
+}
