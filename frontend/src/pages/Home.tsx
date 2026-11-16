@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
 import styles from './Home.module.css'
+import SiteHeader from '../components/SiteHeader'
+import SiteFooter from '../components/SiteFooter'
+import { WHATSAPP_CATIVA, WHATSAPP_FABRICA } from '../content/contatos'
 
-const WHATSAPP_CATIVA = 'https://wa.me/5584996770404'
-const WHATSAPP_FABRICA = 'https://wa.me/5584992215656'
-const INSTAGRAM = 'https://www.instagram.com/raquelmachado_ped/'
 
 const testimonials = [
   {
@@ -33,78 +32,10 @@ const testimonials = [
 ]
 
 export default function Home() {
-  const [scrolled, setScrolled] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside)
-    return () => document.removeEventListener('mousedown', onClickOutside)
-  }, [])
-
   return (
     <div className={styles.page}>
 
-      {/* NAV */}
-      <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
-        <a href="/" className={styles.navLogo}>
-          <span className={styles.navName}>Dra. Raquel Machado</span>
-          <span className={styles.navSub}>Pediatra · Neonatologista</span>
-        </a>
-        <div className={styles.navLinks}>
-          <a href="#sobre" className={styles.navLink}>Sobre</a>
-          <a href="#especialidades" className={styles.navLink}>Especialidades</a>
-          <a href="#depoimentos" className={styles.navLink}>Depoimentos</a>
-          <a href="#contato" className={styles.navLink}>Contato</a>
-        </div>
-        <div className={styles.navCtaWrap} ref={dropdownRef}>
-          <button
-            className={styles.navCta}
-            onClick={() => setDropdownOpen(o => !o)}
-            aria-expanded={dropdownOpen}
-          >
-            Agendar Consulta
-            <svg className={`${styles.navCtaChevron} ${dropdownOpen ? styles.navCtaChevronOpen : ''}`} viewBox="0 0 12 12" fill="none">
-              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          {dropdownOpen && (
-            <div className={styles.navDropdown}>
-              <a
-                href={WHATSAPP_CATIVA}
-                className={styles.navDropdownItem}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setDropdownOpen(false)}
-              >
-                <span className={styles.navDropdownName}>Clínica Cativa</span>
-                <span className={styles.navDropdownSub}>Tyrol Business Center · Sala 514</span>
-              </a>
-              <a
-                href={WHATSAPP_FABRICA}
-                className={styles.navDropdownItem}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setDropdownOpen(false)}
-              >
-                <span className={styles.navDropdownName}>Fábrica do Amanhã</span>
-                <span className={styles.navDropdownSub}>Rua Dr. Horácio, 595 · Lagoa Nova</span>
-              </a>
-            </div>
-          )}
-        </div>
-      </nav>
+      <SiteHeader />
 
       {/* HERO */}
       <section className={styles.hero}>
@@ -342,25 +273,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerBrand}>
-            <span className={styles.footerName}>Dra. Raquel Machado</span>
-            <span className={styles.footerSub}>Pediatra &amp; Neonatologista · CRM-RN 9383</span>
-          </div>
-          <div className={styles.footerLinks}>
-            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>Instagram</a>
-            <a href={WHATSAPP_CATIVA} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>WhatsApp Cativa</a>
-            <a href={WHATSAPP_FABRICA} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>WhatsApp Fábrica</a>
-            <a href="/links" className={styles.footerLink}>Links</a>
-          </div>
-          <p className={styles.footerCopy}>
-            © 2026 Dra. Raquel Machado · Todos os direitos reservados ·{' '}
-            <a href="/privacidade" className={styles.footerLink}>Política de Privacidade</a>
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
 
     </div>
   )
