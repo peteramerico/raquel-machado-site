@@ -1,6 +1,8 @@
 name: raquel-site
 
 services:
+  # Mesma identidade do container que já roda em produção (nome, projeto e volume externo):
+  # o `docker compose up -d --build` só o recria para aplicar o healthcheck; os dados ficam no volume.
   mysql:
     image: mysql:8.0
     container_name: raquel-mysql
@@ -14,7 +16,27 @@ services:
       - "127.0.0.1:3306:3306"
     volumes:
       - raquel-mysql-data:/var/lib/mysql
-      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  raquel-backend:
+    build: .
+    container_name: raquel-backend
+    restart: unless-stopped
+    env_file: .env
+    # força os valores de rede do Docker; o .env da VPS (DB_HOST=127.0.0.1, PORT=3001) segue valendo sem edição
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      PORT: "3337"
+    ports:
+      - "127.0.0.1:3337:3337"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   raquel-mysql-data:
