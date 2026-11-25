@@ -24,6 +24,11 @@ describe('SiteHeader', () => {
     expect(screen.getByRole('link', { name: 'Administrador' })).toHaveAttribute('href', '/admin')
   })
 
+  it('tem o link Palestras apontando para /palestras', () => {
+    montar()
+    expect(screen.getByRole('link', { name: 'Palestras' })).toHaveAttribute('href', '/palestras')
+  })
+
   it('os links de seção apontam para a Home com âncora', () => {
     montar()
     expect(screen.getByRole('link', { name: 'Sobre' })).toHaveAttribute('href', '/#sobre')
