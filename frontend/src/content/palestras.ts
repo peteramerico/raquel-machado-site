@@ -20,6 +20,10 @@ export type Evento = {
 export type Palestra = {
   slug: string
   titulo: string
+  /** Versão curta do título (até 45 caracteres) para <title> e compartilhamento. */
+  tituloCurto: string
+  /** Descrição para buscadores e prévia de link (até 160 caracteres). */
+  descricao: string
   subtitulo: string
   resumo: string
   temas: readonly string[]
@@ -34,6 +38,9 @@ export const PALESTRAS: readonly Palestra[] = [
   {
     slug: 'sala-de-parto',
     titulo: 'Aspectos da sala de parto no follow-up do recém-nascido prematuro',
+    tituloCurto: 'Sala de parto no follow-up do prematuro',
+    descricao:
+      'Palestra da Dra. Raquel Machado para profissionais de saúde: clampeamento do cordão, normotermia, CPAP, aspiração e oxigênio no recém-nascido prematuro.',
     subtitulo: 'Novembro Roxo · Dra. Raquel Machado, pediatra e neonatologista',
     resumo:
       'Palestra para profissionais de saúde. Percorre aspectos da reanimação do recém-nascido prematuro na sala de parto e o que cada um pode significar no seguimento no consultório. Baseada nas diretrizes PRN-SBP 2026 (Sociedade Brasileira de Pediatria). É material educativo: não substitui a avaliação individual de cada criança.',
