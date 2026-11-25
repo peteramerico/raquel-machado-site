@@ -91,7 +91,7 @@ Arquivos gerados em `dist/`:
 
 ### 5. Nginx (aplicado à mão na VPS, com backup, `nginx -t` e reload)
 
-Compatível com qualquer ordem de deploy (Nginx novo + site antigo se comporta como hoje; site novo + Nginx antigo também):
+Ordem OBRIGATÓRIA: Nginx primeiro, site depois. Testado na VPS em 25/11: Nginx novo + site antigo funciona (66 checagens iguais ao baseline); Nginx antigo + site novo QUEBRA `/palestras` e `/palestras/` (403, porque a pasta `palestras/` passa a existir e o `$uri/` do Nginx antigo tenta listá-la). Consequência para reversão: voltar só o Nginx com o site novo no ar também quebra `/palestras`; reverter o merge (e esperar o cron) junto com o Nginx.
 
 ```
 location = / {
@@ -129,7 +129,7 @@ Gerado pelo mesmo mapa de rotas no build, só com `<loc>` (sem `lastmod`/`change
 
 Ordem: (1) aplicar Nginx na VPS com backup (compatível com o site atual); (2) merge no master e push (Actions + cron);
 (3) verificar produção; (4) limpar cache da Cloudflare.
-Reversão: restaurar o backup do Nginx (`/root/backups/raquel-site/nginx.<data>.bak`) e reverter o merge. Minutos.
+Reversão: reverter o merge no master (o cron republica o site antigo em ~2 min) E restaurar o backup do Nginx (`/root/backups/raquel-site/nginx.<data>.bak`), nessa ordem: site antigo primeiro, Nginx antigo depois (o Nginx novo aceita o site antigo; o contrário não).
 
 ## Riscos
 
@@ -137,6 +137,6 @@ Reversão: restaurar o backup do Nginx (`/root/backups/raquel-site/nginx.<data>.
 |---|---|
 | Divergência de hidratação | Teste de renderização no servidor; console limpo no Chrome; palestra sai da lista se houver dúvida |
 | 403/404 em rotas com barra final | `$uri/` removido; checado na porta de teste |
-| Ordem do deploy | Nginx compatível com site antigo e novo |
+| Ordem do deploy | Nginx primeiro (aceita site antigo e novo); reversão na ordem inversa. Verificado na VPS |
 | HTML em cache na Cloudflare | HTML sem extensão na URL não é cacheado por padrão; limpar cache e reconferir |
 | Layout mobile não visto | Continua pendente com o Peter (limitação do navegador usado), igual a hoje |

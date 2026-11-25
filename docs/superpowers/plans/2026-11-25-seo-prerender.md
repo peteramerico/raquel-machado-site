@@ -835,6 +835,8 @@ nginx -t && systemctl reload nginx
 EOF
 ```
 
+(Executado em 25/11 gerando o arquivo localmente com Node e enviando por scp, sem Python.)
+
 (Se o Python não existir na VPS, gerar o arquivo localmente com o mesmo `re` em Node e enviar com `scp`.) O `server_tokens off;` do topo do arquivo fica fora do bloco extraído e já existe na config real.
 
 - [ ] **Passo 3: Rodar a verificação na VPS**
@@ -853,7 +855,7 @@ node scripts/verificar-site.mjs http://127.0.0.1:8081 --prerender
 Esperado: tudo `OK`, incluindo os cabeçalhos de `/apresentacoes/`, `/palestras/` = 200 e `/xyz-inexistente` = shell. Comparar com o baseline da Tarefa 0.
 
 - [ ] **Passo 4: Chrome pelo túnel** (`http://127.0.0.1:8081/palestras/sala-de-parto`): iframe com 15 slides, console sem erro de hidratação. (A CSP do site não bloqueia: mesma origem.)
-- [ ] **Passo 5: Compatibilidade nos dois sentidos**: (a) Nginx novo com o site ANTIGO: apontar temporariamente `root` do teste para um diretório com o build antigo (`/var/www/raquel-frontend` é a produção atual, mesmo conteúdo) e rodar o script SEM `--prerender`: tudo `OK`; (b) site novo com Nginx ANTIGO: `curl` na produção atual não se aplica; basta confirmar que `index.html` do build novo é a shell limpa (`grep -c "<h1" dist/index.html` = 0), que é o único arquivo que o Nginx antigo serve.
+- [x] **Passo 5 (resultado em 25/11: Nginx novo + site antigo OK; Nginx antigo + site novo QUEBRA /palestras e /palestras/ com 403, então a ordem Nginx-primeiro é obrigatória): Compatibilidade nos dois sentidos**: (a) Nginx novo com o site ANTIGO: apontar temporariamente `root` do teste para um diretório com o build antigo (`/var/www/raquel-frontend` é a produção atual, mesmo conteúdo) e rodar o script SEM `--prerender`: tudo `OK`; (b) site novo com Nginx ANTIGO: `curl` na produção atual não se aplica; basta confirmar que `index.html` do build novo é a shell limpa (`grep -c "<h1" dist/index.html` = 0), que é o único arquivo que o Nginx antigo serve.
 - [ ] **Passo 6: Limpar o servidor temporário**
 
 ```bash
