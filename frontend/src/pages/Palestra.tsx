@@ -4,7 +4,7 @@ import { useTitulo } from '../lib/useTitulo'
 import styles from './Palestra.module.css'
 
 function Conteudo({ palestra }: { palestra: DadosPalestra }) {
-  useTitulo(`${palestra.titulo} · Dra. Raquel Machado`)
+  useTitulo(`${palestra.tituloCurto} · Dra. Raquel Machado`)
   return (
     <main className={styles.page}>
       <div className={styles.inner}>

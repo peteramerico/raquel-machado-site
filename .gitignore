@@ -10,6 +10,7 @@ backend/node_modules/
 
 # Build output
 frontend/dist/
+frontend/dist-server/
 admin/dist/
 
 # Uploads (conteúdo gerado na VPS)
