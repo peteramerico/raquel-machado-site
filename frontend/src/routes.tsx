@@ -9,6 +9,8 @@ import Entrar from './pages/Entrar'
 import Familia from './pages/Familia'
 import Home from './pages/Home'
 import Links from './pages/Links'
+import Palestra from './pages/Palestra'
+import Palestras from './pages/Palestras'
 import PainelFamilias from './pages/painel/PainelFamilias'
 import PainelLayout from './pages/painel/PainelLayout'
 import PainelValor from './pages/painel/PainelValor'
@@ -23,6 +25,8 @@ export const routes: RouteObject[] = [
         element: <RootLayout />,
         children: [
           { path: '/', element: <Home /> },
+          { path: '/palestras', element: <Palestras /> },
+          { path: '/palestras/:slug', element: <Palestra /> },
           {
             // Tudo que tem login: só aqui existe o AuthProvider (páginas públicas não consultam /api/auth/me)
             element: <AreaRestrita />,

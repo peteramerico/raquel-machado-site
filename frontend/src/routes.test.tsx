@@ -51,6 +51,45 @@ describe('rotas públicas', () => {
   })
 })
 
+describe('palestras', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('/palestras lista a palestra, com header e footer, sem consultar a sessão', () => {
+    const { fn } = mockFetch({})
+    abrir('/palestras')
+    expect(temHeader()).toBe(true)
+    expect(temFooter()).toBe(true)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Palestras')
+    expect(screen.getByRole('link', { name: /sala de parto/i })).toHaveAttribute('href', '/palestras/sala-de-parto')
+    expect(document.title).toBe('Palestras · Dra. Raquel Machado')
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it('/palestras/sala-de-parto embute a apresentação e oferece tela cheia em nova aba', () => {
+    const { fn } = mockFetch({})
+    abrir('/palestras/sala-de-parto')
+    expect(temHeader()).toBe(true)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/sala de parto no follow-up/)
+    expect(screen.getByTitle('Apresentação: aspectos da sala de parto no follow-up do RNPT')).toHaveAttribute(
+      'src',
+      '/apresentacoes/sala-de-parto/',
+    )
+    const botao = screen.getByRole('link', { name: 'Abrir em tela cheia' })
+    expect(botao).toHaveAttribute('href', '/apresentacoes/sala-de-parto/')
+    expect(botao).toHaveAttribute('target', '_blank')
+    expect(botao.getAttribute('rel')).toContain('noopener')
+    expect(screen.getByText(/Tecla F: tela cheia/)).toBeInTheDocument()
+    expect(document.title).toMatch(/sala de parto/i)
+    expect(fn).not.toHaveBeenCalled()
+  })
+
+  it('palestra desconhecida redireciona para /palestras', () => {
+    mockFetch({})
+    const router = abrir('/palestras/nao-existe')
+    expect(router.state.location.pathname).toBe('/palestras')
+  })
+})
+
 describe('áreas restritas', () => {
   afterEach(() => vi.unstubAllGlobals())
 
