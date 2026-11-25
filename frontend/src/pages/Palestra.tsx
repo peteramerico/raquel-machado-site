@@ -34,6 +34,34 @@ function Conteudo({ palestra }: { palestra: DadosPalestra }) {
           </p>
         </div>
 
+        <section className={styles.evento} aria-labelledby="evento-palestra">
+          <p className={styles.eventoNome}>{palestra.evento.nome}</p>
+          <h2 id="evento-palestra" className={styles.eventoMesa}>
+            Mesa redonda: {palestra.evento.mesa}
+          </h2>
+          <dl className={styles.eventoDados}>
+            <div>
+              <dt>Data</dt>
+              <dd>{palestra.evento.data}, {palestra.evento.horario}</dd>
+            </div>
+            <div>
+              <dt>Local</dt>
+              <dd>{palestra.evento.local}</dd>
+            </div>
+          </dl>
+          <ol className={styles.programa}>
+            {palestra.evento.programa.map((i) => (
+              <li key={i.titulo}>
+                <span className={styles.programaTitulo}>{i.titulo}</span>
+                <span className={styles.programaQuem}>{i.quem} · {i.duracao}</span>
+              </li>
+            ))}
+          </ol>
+          <p className={styles.debatedoras}>
+            Debatedoras: {palestra.evento.debatedoras.join(' e ')}.
+          </p>
+        </section>
+
         <section className={styles.sobre} aria-labelledby="sobre-palestra">
           <h2 id="sobre-palestra" className={styles.sobreTitulo}>Sobre a palestra</h2>
           <p className={styles.resumo}>{palestra.resumo}</p>
