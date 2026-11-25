@@ -1,6 +1,6 @@
 # SEO técnico: metadados por rota, JSON-LD e pré-renderização — design
 
-Data: 2026-11-25 · Projeto: raquel-machado-site (frontend) · Status: aguardando revisão do Peter
+Data: 2026-11-25 · Projeto: raquel-machado-site (frontend) · Status: aprovada; plano em `docs/superpowers/plans/2026-11-25-seo-prerender.md`
 
 ## Problema
 
@@ -46,7 +46,7 @@ Fonte única, usada pelo build, pelo sitemap e pelos testes. Para cada rota púb
 `og` (`title`, `description`, `url`, `type`, `locale: pt_BR`, `site_name`; `image` opcional, ausente por ora) e `jsonLd` (lista de objetos).
 
 Rotas: `/`, `/palestras`, `/palestras/sala-de-parto`, `/links`, `/privacidade`.
-A página da palestra deriva título/descrição de `content/palestras.ts` (não duplicar texto).
+A página da palestra deriva título/descrição de `content/palestras.ts` (novos campos `tituloCurto` e `descricao`: o título completo tem 86 caracteres e o resumo 330; não duplicar texto no mapa).
 `/links` e `/privacidade` entram no mapa com canonical, mas sem JSON-LD.
 
 ### 2. JSON-LD
@@ -83,11 +83,11 @@ Arquivos gerados em `dist/`:
 
 ### 4. Hidratação: pontos de atenção conhecidos
 
-- `useRevelar` hoje inicia `visivel` com `matchMedia`/`IntersectionObserver`, que no servidor e no cliente dão valores diferentes
-  (divergência de hidratação e risco de mudar a animação da home). Passa a iniciar igual nos dois lados e ligar a animação só no efeito. O visual final da home precisa ficar idêntico (conferir no navegador).
+- `useRevelar` NÃO precisa mudar: o código mostra que ele só é usado em `Familia.tsx` (área com login, não pré-renderizada). (Correção em relação à primeira versão desta spec.)
 - `ScrollToHash`, `SiteHeader` e demais usos de `window`/`document` já estão dentro de `useEffect` (não executam no servidor). Conferir por teste de renderização no servidor.
-- `useTitulo` continua no cliente; no servidor o título vem do mapa. `useNoIndex` não é afetado (rotas restritas não são pré-renderizadas).
+- `useTitulo` continua no cliente; no servidor o título vem do mapa (mesmo texto, para o título não mudar após a hidratação). `useNoIndex` não é afetado.
 - O iframe da palestra renderiza igual nos dois lados (`src` e `title` fixos, vêm de `palestras.ts`).
+- `StaticRouterProvider` com `hydrate={false}`: sem loaders não há dados a hidratar, e o script de hidratação extra causaria divergência.
 
 ### 5. Nginx (aplicado à mão na VPS, com backup, `nginx -t` e reload)
 
@@ -114,12 +114,12 @@ location / {
 
 ### 6. Sitemap
 
-Gerado pelo mesmo mapa de rotas no build (`lastmod` = data do build para as páginas pré-renderizadas; `priority` como hoje). Substitui `public/sitemap.xml` escrito à mão.
+Gerado pelo mesmo mapa de rotas no build, só com `<loc>` (sem `lastmod`/`changefreq`/`priority`: o Google ignora os dois últimos e desconfia de `lastmod` que muda a cada build). Substitui `public/sitemap.xml` escrito à mão.
 `robots.txt` não muda (o bloco gerenciado da Cloudflare fica como está; a política de IA é decisão à parte do Peter).
 
 ## Verificação
 
-- Unitários: mapa (todas as rotas têm título ≤ 70 e descrição ≤ 160 caracteres, canonical absoluto sem `www`), JSON-LD (JSON válido, `@context`, campos obrigatórios, sem `aggregateRating`), sitemap (uma URL por rota do mapa).
+- Unitários: mapa (todas as rotas têm título ≤ 70 e descrição entre 50 e 160 caracteres, canonical absoluto sem `www`), JSON-LD (JSON válido, `@context`, campos obrigatórios, sem `aggregateRating`), sitemap (uma URL por rota do mapa).
 - Prerender: um HTML por rota, com `<title>` e `canonical` certos, `<h1>` no corpo, JSON-LD parseável e `index.html` intacto (sem `<h1>`).
 - Servidor de teste local (`vite preview` sobre `dist`) + Chrome: console limpo, iframe e 15 slides na palestra, home com a mesma aparência.
 - VPS (porta 8081), depois produção: baseline do item "Critérios de aceite" + `curl` das cinco rotas mostrando `<title>`, `canonical`, `og:title` e `ld+json` no código-fonte.
@@ -135,7 +135,7 @@ Reversão: restaurar o backup do Nginx (`/root/backups/raquel-site/nginx.<data>.
 
 | Risco | Mitigação |
 |---|---|
-| Divergência de hidratação (`useRevelar`) | Estado inicial igual nos dois lados; teste e console limpo; palestra sai da lista se houver dúvida |
+| Divergência de hidratação | Teste de renderização no servidor; console limpo no Chrome; palestra sai da lista se houver dúvida |
 | 403/404 em rotas com barra final | `$uri/` removido; checado na porta de teste |
 | Ordem do deploy | Nginx compatível com site antigo e novo |
 | HTML em cache na Cloudflare | HTML sem extensão na URL não é cacheado por padrão; limpar cache e reconferir |
