@@ -133,6 +133,7 @@ p { font-size: 32px; line-height: 1.45; margin: 0; }
 .obrigada .nome { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 44px; color: var(--colo); margin-top: 28px; }
 .obrigada .crm { font-size: 28px; color: var(--rosa); margin-top: 8px; }
 .obrigada .selo { align-self: center; margin-top: 48px; }
+.obrigada .site { position: absolute; left: 0; right: 0; bottom: 64px; font-size: 26px; letter-spacing: 3px; color: var(--rosa); opacity: .75; }
 
 /* Movimento */
 @keyframes surgir { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0px); } }
