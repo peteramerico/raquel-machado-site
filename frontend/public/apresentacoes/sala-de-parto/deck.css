@@ -1,0 +1,224 @@
+@font-face{font-family:'Jost';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/jost-latin-300-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:300;font-style:normal;font-display:swap;src:url('fonts/cormorant-garamond-latin-300-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:300;font-style:italic;font-display:swap;src:url('fonts/cormorant-garamond-latin-300-italic.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/jost-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:normal;font-display:swap;src:url('fonts/cormorant-garamond-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:400;font-style:italic;font-display:swap;src:url('fonts/cormorant-garamond-latin-400-italic.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/jost-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:500;font-style:normal;font-display:swap;src:url('fonts/cormorant-garamond-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-weight:500;font-style:italic;font-display:swap;src:url('fonts/cormorant-garamond-latin-500-italic.woff2') format('woff2')}
+:root {
+  --colo: #FDF3F6;
+  --rosa: #E8A0B4;
+  --vinho: #8E4C63;
+  --noite: #4A2C38;
+  --areia: #EDE3D8;
+  --pagina: #FFFDFB;
+  --divisor: #F2E6E9;
+  --texto: #5A4A50;
+  --roxo: #7E57A8;
+}
+
+.pg {
+  background: var(--pagina);
+  color: var(--texto);
+  font-family: 'Jost', Arial, sans-serif;
+  font-weight: 300;
+  padding: 128px 128px 160px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  counter-increment: page;
+}
+
+.pg.escuro { background: var(--noite); color: var(--colo); }
+.pg.areia { background: var(--areia); }
+
+/* Tipos */
+.olho { font-family: 'Jost', Arial, sans-serif; font-size: 26px; font-weight: 400; letter-spacing: 6px; color: var(--vinho); margin: 0 0 20px; }
+.escuro .olho { color: var(--rosa); }
+h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; margin: 0; }
+h2 { font-size: 72px; line-height: 1.1; color: var(--noite); }
+.escuro h2 { color: var(--colo); }
+h3 { font-size: 44px; line-height: 1.15; font-weight: 400; color: var(--noite); }
+p { font-size: 32px; line-height: 1.45; margin: 0; }
+.pequeno { font-size: 28px; line-height: 1.45; }
+.destaque { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 56px; line-height: 1.15; font-weight: 400; color: var(--noite); }
+
+/* Rodapé */
+.rodape { position: absolute; left: 128px; bottom: 64px; width: 1664px; display: flex; justify-content: space-between; align-items: center; }
+.rodape .fonte { font-size: 26px; line-height: 1.3; color: var(--vinho); }
+.escuro .rodape .fonte { color: var(--rosa); }
+.rodape .num { font-size: 24px; color: var(--vinho); letter-spacing: 4px; }
+.escuro .rodape .num { color: var(--rosa); }
+.rodape .num::after { content: counter(page); }
+
+/* Selo Novembro Roxo */
+.selo { align-self: flex-start; background: var(--roxo); color: var(--colo); font-size: 26px; font-weight: 400; letter-spacing: 5px; padding: 12px 30px; border-radius: 40px; }
+
+/* Capa */
+.capa { padding: 128px; justify-content: space-between; }
+.capa h1 { font-size: 104px; line-height: 1.05; color: var(--colo); width: 1400px; }
+.capa .base { display: flex; justify-content: space-between; align-items: flex-end; }
+.capa .nome { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 52px; font-weight: 400; line-height: 1.1; color: var(--colo); margin-bottom: 12px; }
+.capa .cred { font-size: 28px; letter-spacing: 5px; color: var(--rosa); font-weight: 400; }
+.capa .crm { font-size: 28px; color: var(--colo); margin-top: 6px; }
+
+/* Cartões */
+.card { background: var(--colo); padding: 40px; box-sizing: border-box; }
+.card-escuro { background: var(--noite); color: var(--colo); padding: 40px; box-sizing: border-box; }
+.card-escuro .olho { color: var(--rosa); }
+.card-linha { border-top: 2px solid var(--rosa); padding-top: 28px; }
+.vazio { border: 2px dashed var(--rosa); padding: 40px; box-sizing: border-box; color: var(--vinho); }
+
+/* Sobre */
+.sobre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 128px; margin-top: 56px; }
+.sobre-lista p { padding: 22px 0; border-top: 2px solid var(--divisor); color: var(--noite); }
+.atuacao { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid var(--divisor); padding: 24px 0; min-height: 132px; box-sizing: border-box; }
+.atuacao .rotulo { font-size: 32px; font-weight: 400; color: var(--noite); }
+
+/* Caso */
+.caso-grid { display: grid; grid-template-columns: 1.65fr 1fr; gap: 72px; margin-top: 32px; align-items: start; }
+.citacao { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 56px; line-height: 1.2; color: var(--noite); margin-top: 28px; }
+.registro { background: var(--pagina); padding: 40px 48px; box-sizing: border-box; border-left: 4px solid var(--vinho); }
+.apgar { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 120px; line-height: 1; color: var(--noite); margin-top: 12px; }
+.pergunta-caso { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 48px; line-height: 1.2; font-weight: 400; color: var(--vinho); border-top: 2px solid var(--vinho); padding-top: 32px; margin-top: 64px; }
+
+/* Roteiro (pergunta e síntese) */
+.roteiro { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px 56px; margin-top: 72px; }
+.item-roteiro { border-top: 2px solid var(--vinho); padding-top: 20px; }
+.item-roteiro .n { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 44px; line-height: 1; color: var(--rosa); margin-bottom: 10px; }
+.item-roteiro .t { font-size: 30px; line-height: 1.35; color: var(--colo); }
+
+/* Clampeamento */
+.dupla { display: grid; grid-template-columns: 1fr 600px; gap: 96px; align-items: center; flex: 1; }
+.relogio { position: relative; width: 600px; height: 600px; }
+.relogio svg { position: absolute; left: 0; top: 0; width: 600px; height: 600px; }
+.relogio .seg { position: absolute; left: 100px; top: 200px; width: 400px; text-align: center; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 160px; line-height: 1; color: var(--noite); }
+.relogio .seg-rot { position: absolute; left: 100px; top: 372px; width: 400px; text-align: center; font-size: 28px; letter-spacing: 6px; color: var(--vinho); font-weight: 400; }
+
+/* Números (normotermia) */
+.numeros { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 24px; margin-top: 48px; }
+.numero { background: var(--colo); padding: 36px 32px; box-sizing: border-box; }
+.numero .v { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 96px; line-height: 1; color: var(--noite); }
+.numero .r { font-size: 30px; font-weight: 400; color: var(--noite); margin-top: 16px; }
+.numero .d { font-size: 28px; line-height: 1.35; color: var(--texto); margin-top: 12px; }
+.numero.forte { background: var(--noite); }
+.numero.forte .v { color: var(--colo); }
+.numero.forte .r { color: var(--colo); }
+.numero.forte .d { color: var(--rosa); }
+
+/* Medidas */
+.medidas { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 48px; }
+.medida { background: var(--colo); padding: 36px 36px; box-sizing: border-box; }
+.medida .n { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 44px; line-height: 1; color: var(--vinho); margin-bottom: 14px; }
+.medida .t { font-size: 32px; line-height: 1.25; font-weight: 400; color: var(--noite); }
+.medida .d { font-size: 28px; line-height: 1.4; color: var(--texto); margin-top: 12px; }
+.medida.forte { background: var(--noite); }
+.medida.forte .n { color: var(--rosa); }
+.medida.forte .t { color: var(--colo); }
+.medida.forte .d { color: var(--colo); }
+
+/* Colunas genéricas */
+.colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 48px; }
+.lista-limpa { margin: 0; padding-left: 36px; }
+.lista-limpa li { font-size: 28px; line-height: 1.4; margin-bottom: 14px; color: var(--texto); }
+.texto-forte { font-weight: 400; color: var(--noite); }
+.escuro .texto-forte { color: var(--colo); }
+.riscos { font-size: 28px; line-height: 1.6; color: var(--vinho); margin-top: 20px; }
+
+/* Encerramento */
+.obrigada { align-items: center; justify-content: center; text-align: center; padding: 128px; }
+.obrigada h1 { font-size: 112px; line-height: 1; color: var(--colo); margin-top: 40px; }
+.obrigada .nome { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 44px; color: var(--colo); margin-top: 28px; }
+.obrigada .crm { font-size: 28px; color: var(--rosa); margin-top: 8px; }
+.obrigada .selo { align-self: center; margin-top: 48px; }
+
+/* Movimento */
+@keyframes surgir { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0px); } }
+.surge { animation: surgir 600ms ease-out both; }
+.d1 { animation-delay: 100ms; }
+.d2 { animation-delay: 200ms; }
+.d3 { animation-delay: 300ms; }
+.d4 { animation-delay: 400ms; }
+.d5 { animation-delay: 500ms; }
+
+/* Citação da diretriz */
+.cita { border-left: 4px solid var(--rosa); padding-left: 32px; }
+.cita .q { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 36px; line-height: 1.25; color: var(--noite); }
+.cita .src { font-size: 26px; color: var(--vinho); margin-top: 12px; }
+
+/* Estatísticas pequenas */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.stat { background: var(--colo); padding: 28px 32px; box-sizing: border-box; }
+.stat .v { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; line-height: 1; color: var(--noite); }
+.stat .l { font-size: 28px; line-height: 1.4; color: var(--texto); margin-top: 10px; }
+.stat.forte { background: var(--noite); }
+.stat.forte .v { color: var(--colo); }
+.stat.forte .l { color: var(--colo); }
+
+/* Blocos rotulados */
+.bloco .olho { margin-bottom: 10px; }
+.bloco p.tx { font-size: 28px; line-height: 1.4; }
+.nota-rodape { font-size: 28px; line-height: 1.4; color: var(--vinho); }
+
+/* Passos numerados */
+.passo { display: grid; grid-template-columns: 64px 1fr; border-top: 2px solid var(--divisor); padding: 18px 0; align-items: start; }
+.passo .n { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; line-height: 1; color: var(--vinho); }
+.passo .tx { font-size: 30px; line-height: 1.4; color: var(--texto); }
+
+/* Chips */
+.chips { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.chip { font-size: 28px; color: var(--noite); background: var(--pagina); border: 2px solid var(--rosa); border-radius: 28px; padding: 6px 20px; }
+
+/* Faixas de SpO2 */
+.faixas { background: var(--colo); padding: 36px 40px; box-sizing: border-box; }
+.faixa { display: flex; align-items: center; gap: 24px; height: 64px; }
+.faixa .min { width: 110px; font-size: 28px; color: var(--noite); }
+.faixa .val { width: 150px; font-size: 28px; color: var(--texto); }
+.trilho { position: relative; width: 320px; height: 28px; background: var(--divisor); }
+.barra { position: absolute; top: 0; height: 28px; background: var(--vinho); }
+.faixa.chave .min { font-weight: 500; }
+.faixa.chave .val { font-weight: 500; color: var(--noite); }
+.faixa.chave .barra { background: var(--noite); }
+.eixo { display: flex; justify-content: space-between; width: 320px; margin-left: 134px; margin-top: 8px; }
+.eixo p { font-size: 26px; color: var(--vinho); }
+
+/* Relatos */
+.relato { background: var(--colo); padding: 36px 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; }
+.relato .tx { font-size: 28px; line-height: 1.45; color: var(--noite); }
+.relato .ap { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 64px; line-height: 1; color: var(--noite); margin-top: 24px; border-top: 2px solid var(--rosa); padding-top: 16px; }
+
+/* Tabela comparativa */
+.comp { font-family: 'Jost', Arial, sans-serif; font-size: 28px; color: var(--texto); width: 100%; }
+.comp th { padding: 10px 16px; color: var(--vinho); font-weight: 500; }
+.comp td { padding: 10px 16px; }
+
+/* Referências */
+.refs p { font-size: 30px; line-height: 1.5; color: var(--texto); padding: 24px 0; border-top: 2px solid var(--divisor); }
+
+/* --- adaptação para reveal.js --- */
+html,body{margin:0;height:100%;background:#2B1A21;}
+.reveal{font-family:'Jost',Arial,sans-serif;}
+.reveal .slides{text-align:left;}
+.rodape .num::after{content:none;}
+.reveal .slides>section{padding:0;}
+.pg{width:1920px;height:1080px;position:relative;overflow:hidden;}
+.pg h1,.pg h2,.pg h3,.pg p{margin:0;}
+.pg ul,.pg ol{margin:0;}
+.pg table{border-collapse:separate;border-spacing:0;}
+.pg th,.pg td{text-align:left;border-bottom:2px solid #F2E6E9;}
+.pg img{display:block;}
+/* animações de entrada tocam quando o slide aparece */
+.reveal .slides>section:not(.present) .surge{animation:none;}
+.reveal .fragment{transition:opacity 500ms ease-out;}
+/* relógio de 60 s */
+@keyframes anel{from{stroke-dashoffset:1633.6}to{stroke-dashoffset:0}}
+.reveal .slides>section.present .anel{animation:anel 60s linear both;}
+@media (prefers-reduced-motion: reduce){.surge,.anel{animation:none!important;}}
+/* botão de tela cheia */
+.btn-tela{position:fixed;right:16px;top:16px;z-index:50;font:500 14px/1 'Jost',Arial,sans-serif;letter-spacing:2px;color:#FDF3F6;background:rgba(74,44,56,.85);border:1px solid #E8A0B4;border-radius:20px;padding:10px 16px;cursor:pointer;}
+.btn-tela:hover{background:#4A2C38;}
+:fullscreen .btn-tela{display:none;}
+.reveal .controls{color:#E8A0B4;}
+.reveal .progress{color:#E8A0B4;}

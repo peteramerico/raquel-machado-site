@@ -14,6 +14,7 @@ export default function SiteFooter() {
           <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className={styles.link}>Instagram</a>
           <a href={WHATSAPP_CATIVA} target="_blank" rel="noopener noreferrer" className={styles.link}>WhatsApp Cativa</a>
           <a href={WHATSAPP_FABRICA} target="_blank" rel="noopener noreferrer" className={styles.link}>WhatsApp Fábrica</a>
+          <Link to="/palestras" className={styles.link}>Palestras</Link>
           <Link to="/familia" className={styles.link}>Área da família</Link>
           <Link to="/painel" className={styles.link}>Área médica</Link>
           <Link to="/admin" className={styles.link}>Administrador</Link>

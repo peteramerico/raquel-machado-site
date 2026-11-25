@@ -77,6 +77,15 @@ export default function SiteHeader() {
           ))}
           <li>
             <NavLink
+              to="/palestras"
+              className={({ isActive }) => `${styles.link} ${isActive ? styles.linkAtivo : ''}`}
+              onClick={fechar}
+            >
+              Palestras
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/familia"
               className={({ isActive }) => `${styles.link} ${styles.linkFamilia} ${isActive ? styles.linkAtivo : ''}`}
               onClick={fechar}
