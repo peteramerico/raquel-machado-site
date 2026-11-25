@@ -91,6 +91,79 @@
   color: var(--ink-mute);
 }
 
+.evento {
+  margin-top: 40px;
+  max-width: 720px;
+  padding: 28px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid var(--rose-200);
+}
+
+.eventoNome {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rose-600);
+}
+
+.eventoMesa {
+  margin: 0 0 20px;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.eventoDados {
+  margin: 0 0 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.eventoDados dt {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+
+.eventoDados dd {
+  margin: 2px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.programa {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.programa li { line-height: 1.4; }
+
+.programaTitulo {
+  display: block;
+  font-weight: 600;
+}
+
+.programaQuem {
+  display: block;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.debatedoras {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
 .sobre {
   margin-top: 56px;
   max-width: 720px;

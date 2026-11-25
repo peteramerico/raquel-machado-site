@@ -1,9 +1,29 @@
+export type ItemPrograma = {
+  titulo: string
+  /** Quem apresenta. */
+  quem: string
+  duracao: string
+}
+
+/** Evento em que a palestra foi apresentada. Texto neutro quanto ao tempo (vale antes e depois da data). */
+export type Evento = {
+  nome: string
+  /** Título da mesa redonda. */
+  mesa: string
+  data: string
+  horario: string
+  local: string
+  programa: readonly ItemPrograma[]
+  debatedoras: readonly string[]
+}
+
 export type Palestra = {
   slug: string
   titulo: string
   subtitulo: string
   resumo: string
   temas: readonly string[]
+  evento: Evento
   /** URL do arquivo estático da apresentação (fora da SPA). */
   caminho: string
   /** Título acessível do iframe. */
@@ -25,6 +45,19 @@ export const PALESTRAS: readonly Palestra[] = [
       'Oxigênio: a dose e o alvo',
       'Um caso, dois relatos de reanimação',
     ],
+    evento: {
+      nome: 'Mês da Prematuridade',
+      mesa: 'Impacto do Minuto e da Hora Ouro no follow up do prematuro',
+      data: '25 de novembro de 2026',
+      horario: '18h',
+      local: 'Sociedade de Pediatria do Rio Grande do Norte',
+      programa: [
+        { titulo: 'Aspectos da sala de parto no follow up', quem: 'Dra. Raquel Machado', duracao: '20 min' },
+        { titulo: 'Organização do follow up do pré-termo', quem: 'Dra. Maria Luiza Saraiva Costa', duracao: '20 min' },
+        { titulo: 'Debate', quem: 'Mesa e plateia', duracao: '30 min' },
+      ],
+      debatedoras: ['Dra. Claudia Rodrigues S. Maia', 'Dra. Nivia Maria Rodrigues Arrais'],
+    },
     caminho: '/apresentacoes/sala-de-parto/',
     tituloIframe: 'Apresentação: aspectos da sala de parto no follow-up do RNPT',
   },

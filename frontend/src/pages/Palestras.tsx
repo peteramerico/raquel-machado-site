@@ -17,6 +17,9 @@ export default function Palestras() {
               <Link to={`/palestras/${p.slug}`} className={styles.cartao}>
                 <span className={styles.cartaoSub}>{p.subtitulo}</span>
                 <span className={styles.cartaoTitulo}>{p.titulo}</span>
+                <span className={styles.cartaoMeta}>
+                  {p.evento.nome} · {p.evento.data}
+                </span>
                 <span className={styles.cartaoLink}>Ver palestra →</span>
               </Link>
             </li>
