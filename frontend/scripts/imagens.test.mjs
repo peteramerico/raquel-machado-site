@@ -1,3 +1,4 @@
+// Orçamento de bytes das imagens públicas. Fica em scripts/ (JS puro) para o `tsc -b` não precisar dos tipos do Node.
 import { readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'

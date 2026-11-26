@@ -7,6 +7,7 @@ import type { Guia, RespostaGuia } from '../lib/tipos'
 import { useNoIndex } from '../lib/useNoIndex'
 import { useRevelar } from '../lib/useRevelar'
 import styles from './Familia.module.css'
+import { Foto } from '../components/Foto'
 
 function Revelar({ children, atraso = 0, className = '' }: { children: ReactNode; atraso?: number; className?: string }) {
   const { ref, visivel } = useRevelar<HTMLDivElement>()
@@ -67,7 +68,7 @@ function GuiaConteudo({ guia, valorConsulta }: { guia: Guia; valorConsulta: numb
             <div className={styles.heroFoto}>
               <div className={styles.fotoMancha} aria-hidden="true" />
               <div className={styles.fotoAnel} aria-hidden="true" />
-              <img src="/images/hero.jpg" alt="Dra. Raquel Machado, pediatra e neonatologista" className={styles.fotoImg} />
+              <Foto nome="hero" larguras={[480, 800, 1200]} reserva={1200} largura={1200} altura={1810} sizes="(max-width: 500px) 78vw, 390px" alt="Dra. Raquel Machado, pediatra e neonatologista" className={styles.fotoImg} prioridade />
             </div>
           </div>
         </section>
@@ -176,7 +177,7 @@ function GuiaConteudo({ guia, valorConsulta }: { guia: Guia; valorConsulta: numb
 
         {/* ASSINATURA */}
         <section className={styles.assinatura} aria-label="Assinatura">
-          <img src="/images/sobre.jpg" alt="" className={styles.assinaturaFoto} />
+          <Foto nome="sobre" larguras={[480, 920, 1200]} reserva={1200} largura={1200} altura={1801} sizes="96px" alt="" className={styles.assinaturaFoto} />
           <p className={styles.assinaturaNome}>{guia.assinatura.nome}</p>
           <p className={styles.assinaturaTitulo}>{guia.assinatura.titulo}</p>
         </section>
