@@ -1,5 +1,6 @@
 import styles from './Home.module.css'
 import { WHATSAPP_CATIVA, WHATSAPP_FABRICA } from '../content/contatos'
+import { Foto } from '../components/Foto'
 
 
 const testimonials = [
@@ -74,10 +75,13 @@ export default function Home() {
           </div>
           <div className={styles.heroImageWrap}>
             <div className={styles.heroImageDecor} />
-            <img
-              src="/images/hero.jpg"
+            <Foto
+              nome="hero"
+              larguras={[480, 800, 1200]} reserva={1200} largura={1200} altura={1810}
+              sizes="(max-width: 900px) 260px, 400px"
               alt="Dra. Raquel Machado — Pediatra e Neonatologista"
               className={styles.heroImage}
+              prioridade
             />
           </div>
         </div>
@@ -87,8 +91,10 @@ export default function Home() {
       <section id="sobre" className={styles.sobre}>
         <div className={styles.sobreInner}>
           <div className={styles.sobreImageWrap}>
-            <img
-              src="/images/sobre.jpg"
+            <Foto
+              nome="sobre"
+              larguras={[480, 920, 1200]} reserva={1200} largura={1200} altura={1801}
+              sizes="(max-width: 900px) 100vw, 460px"
               alt="Dra. Raquel Machado no consultório"
               className={styles.sobreImage}
             />
@@ -142,7 +148,7 @@ export default function Home() {
         <div className={styles.especialidadesGrid}>
           <div className={styles.espCard}>
             <div className={styles.espCardImg}>
-              <img src="/images/pediatria.jpg" alt="Pediatria Geral" />
+              <Foto nome="pediatria" larguras={[640, 1164]} reserva={1164} largura={1164} altura={1760} sizes="(max-width: 900px) 100vw, 582px" alt="Pediatria Geral" />
             </div>
             <div className={styles.espCardBody}>
               <h3 className={styles.espCardTitle}>Pediatria Geral</h3>
@@ -160,7 +166,7 @@ export default function Home() {
           </div>
           <div className={styles.espCard}>
             <div className={styles.espCardImg}>
-              <img src="/images/neonatologia.jpg" alt="Neonatologia" />
+              <Foto nome="neonatologia" larguras={[640, 1164]} reserva={1164} largura={1164} altura={776} sizes="(max-width: 900px) 100vw, 582px" alt="Neonatologia" />
             </div>
             <div className={styles.espCardBody}>
               <h3 className={styles.espCardTitle}>Neonatologia</h3>

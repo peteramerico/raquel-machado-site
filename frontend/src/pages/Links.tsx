@@ -37,7 +37,7 @@ export default function Links() {
               </div>
             ) : (
               <img
-                src="/raquel-avatar.jpg"
+                src="/images/raquel-avatar-192.jpg"
                 alt="Dra. Raquel Machado"
                 className={styles.avatar}
                 onError={() => setImgError(true)}
