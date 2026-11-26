@@ -7,6 +7,8 @@ services:
     image: mysql:8.0
     container_name: raquel-mysql
     restart: always
+    # sem performance_schema: poupa ~100 MB de RAM numa VPS de 4 GB compartilhada
+    command: ["--performance-schema=OFF"]
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
